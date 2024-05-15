@@ -1,6 +1,6 @@
 module github.com/flowerLoader/tool
 
-go 1.22.2
+go 1.18
 
 require (
 	github.com/AlbinoGeek/logxi v0.0.0-20200425095309-d0ab8e34db2d
