@@ -24,10 +24,16 @@ func init() {
 		"Path to store transpiled plugins")
 	rootCmd.PersistentFlags().Bool("debug", false, "Scream and shout")
 
-	viper.BindPFlag("game-path", rootCmd.PersistentFlags().Lookup("game-path"))
-	viper.BindPFlag("input-path", rootCmd.PersistentFlags().Lookup("input-path"))
-	viper.BindPFlag("output-path", rootCmd.PersistentFlags().Lookup("output-path"))
-	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
+	must := func(err error) {
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	must(viper.BindPFlag("game-path", rootCmd.PersistentFlags().Lookup("game-path")))
+	must(viper.BindPFlag("input-path", rootCmd.PersistentFlags().Lookup("input-path")))
+	must(viper.BindPFlag("output-path", rootCmd.PersistentFlags().Lookup("output-path")))
+	must(viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug")))
 }
 
 var rootCmd = &cobra.Command{
@@ -44,6 +50,8 @@ var rootCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		if err := cmd.Help(); err != nil {
+			panic(err)
+		}
 	},
 }
