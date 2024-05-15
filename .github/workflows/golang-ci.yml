@@ -96,6 +96,8 @@ jobs:
 
   release:
     name: Release
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     needs: [build]
 
