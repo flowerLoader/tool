@@ -1,0 +1,141 @@
+name: Go CI
+on:
+  # Trigger the workflow on any push to the repository
+  push:
+    branches:
+      - "**"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.x"
+
+      - name: Install dependencies
+        run: go get -v -t -d ./...
+
+      - name: Lint with golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.58
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.x"
+
+      - name: Install dependencies
+        run: go get -v -t -d ./...
+
+      - name: Run Tests
+        run: go test -v ./... > TestResults.log
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: TestResults.log
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        go-version: ["1.20.x", "1.21.x", "1.22.x"]
+        arch: [amd64]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Install dependencies
+        run: go get -v -t -d ./...
+
+      - name: Build binary
+        run: |
+          GOOS=$(if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then echo "linux"; else echo "windows"; fi)
+          GOARCH=${{ matrix.arch }}
+          go build -o build/${GOOS}-${GOARCH}/app
+        env:
+          GO111MODULE: on
+
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.os }}-${{ matrix.arch }}
+          path: build/${{ matrix.os }}-${{ matrix.arch }}/app
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-ubuntu-latest-amd64
+          path: build/linux-amd64
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-windows-latest-amd64
+          path: build/windows-amd64
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: true
+
+      - name: Upload Linux Binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/linux-amd64
+          asset_name: flower-linux-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows Binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/windows-amd64
+          asset_name: flower-windows-amd64.exe
+          asset_content_type: application/octet-stream
