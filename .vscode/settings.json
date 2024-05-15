@@ -4,6 +4,8 @@
     "APPVERSION",
     "flowerful",
     "gamedata",
+    "GOARCH",
+    "golint",
     "isekainosouzousha",
     "libraryfolders",
     "steamapps"
