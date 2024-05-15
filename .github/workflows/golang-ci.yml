@@ -30,6 +30,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -53,7 +54,7 @@ jobs:
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: TestResults-${{ matrix.go-version }}
+          name: TestResults-${{ matrix.os }}-${{ matrix.go-version }}
           path: TestResults-${{ matrix.go-version }}.log
 
   build:
