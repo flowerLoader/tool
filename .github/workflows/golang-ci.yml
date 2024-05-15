@@ -80,12 +80,7 @@ jobs:
         run: go get -v -t -d ./...
 
       - name: Build binary
-        run: |
-          GOOS=$(if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then echo "linux"; else echo "windows"; fi)
-          GOARCH=${{ matrix.arch }}
-          go build -o build/${GOOS}-${GOARCH}/app
-        env:
-          GO111MODULE: on
+        run: GOOS=$(if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then echo "linux"; else echo "windows"; fi) GOARCH=${{ matrix.arch }} go build -o build/${GOOS}-${GOARCH}/app -v ./cmd/flower
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
