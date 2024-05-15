@@ -24,11 +24,10 @@ jobs:
       - name: Install dependencies
         run: go get -v -t -d ./...
 
-      - name: Vet & Lint
-        run: |
-          go get -u golang.org/x/lint/golint
-          go vet ./...
-          golint ./...
+      - name: Lint with golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.58
 
       - name: Test with Go
         run: go test -json > TestResults-${{ matrix.go-version }}.json
