@@ -30,10 +30,8 @@ jobs:
 
       - name: Build binary
         run: |
-          GOOS=$(if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then echo "linux"; else echo "windows"; fi)
-          GOARCH=${{ matrix.arch }}
           mkdir -p build/${{ matrix.os }}-${{ matrix.arch }}
-          go build -v \
+          GOOS=$(if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then echo "linux"; else echo "windows"; fi) GOARCH=${{ matrix.arch }} go build -v \
             -o build/${{ matrix.os }}-${{ matrix.arch }}/app \
             ./cmd/flower
 
