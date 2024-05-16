@@ -81,7 +81,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/linux-amd64
+          asset_path: build/linux-amd64/app
           asset_name: flower-linux-amd64
           asset_content_type: application/octet-stream
 
@@ -91,6 +91,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/windows-amd64
+          asset_path: build/windows-amd64/app
           asset_name: flower-windows-amd64.exe
           asset_content_type: application/octet-stream
