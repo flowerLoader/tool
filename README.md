@@ -1,11 +1,7 @@
-# Flower Loader CLI
-
-<div style="text-align:center; margin-bottom: -0.8em">
+<h1>Flower Loader CLI</h1>
 
 ![Language](https://img.shields.io/badge/Language-Go_1.20+-blue?style=for-the-badge&logo=go)
 ![License](https://img.shields.io/badge/License-CC_BY--NC--SA_4.0-yellowgreen?style=for-the-badge&logo=creativecommons)
-
-</div>
 
 **Flower Loader** is a Plugin Manager for `Creator of Another World`. With Flower Loader, you can easily manage and develop Plugins. This repository contains the command-line interface (CLI) tool to manage plugins. It is built with Go and is source-available under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
 
@@ -18,34 +14,21 @@
 [![Steam](https://img.shields.io/badge/Steam-Creator_Of_Another_World-1b2838?style=for-the-badge&logo=steam)](https://store.steampowered.com/app/2761610/Creator_of_Another_World/)  
 by [kuetaro (くえたろう)](https://store.steampowered.com/curator/44822906)
 
-<hr style="margin-top: 4em" />
+## Table of Contents
 
-- [Flower Loader CLI](#flower-loader-cli)
-  - [Features](#features)
-  - [Installing the Tool](#installing-the-tool)
-    - [From a GitHub Release](#from-a-github-release)
-    - [From Source](#from-source)
-  - [Usage](#usage)
-  - [Development](#development)
-    - [Prerequisites](#prerequisites)
-    - [Clone the Repository](#clone-the-repository)
-    - [Build the Project](#build-the-project)
-    - [Run the Project](#run-the-project)
-  - [Plugin Ecosystem](#plugin-ecosystem)
-  - [Contributing](#contributing)
-  - [FAQ \& Troubleshooting](#faq--troubleshooting)
-
-<hr style="margin-bottom: 4em" />
-
-## Features
-
-- Install Plugins
-  - Install from Plugin Archive
-  - Install from Git Repository
-  - Developer Mode (Watch Local Folder)
-- Update Plugins
-- Remove Plugins
-- List/Search Plugins
+- [Table of Contents](#table-of-contents)
+- [Installing the Tool](#installing-the-tool)
+  - [From a GitHub Release](#from-a-github-release)
+  - [From Source](#from-source)
+- [Usage](#usage)
+- [Development](#development)
+  - [Prerequisites](#prerequisites)
+  - [Clone the Repository](#clone-the-repository)
+  - [Build the Project](#build-the-project)
+  - [Run the Project](#run-the-project)
+- [Plugin Ecosystem](#plugin-ecosystem)
+- [Contributing](#contributing)
+- [FAQ \& Troubleshooting](#faq--troubleshooting)
 
 ## Installing the Tool
 
