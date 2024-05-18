@@ -2,6 +2,8 @@ module github.com/flowerLoader/tool
 
 go 1.21
 
+toolchain go1.22.3
+
 require (
 	github.com/AlbinoGeek/logxi v0.0.0-20200425095309-d0ab8e34db2d
 	github.com/andygrunwald/vdf v1.1.0
