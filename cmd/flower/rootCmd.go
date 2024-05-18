@@ -37,10 +37,44 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:     APPNAME,
-	Version: APPVERSION,
-	Short:   "",
-	Long:    "",
+	Use:        APPNAME,
+	Version:    APPVERSION,
+	Short:      "",
+	Long:       "",
+	Args:       cobra.ArbitraryArgs,
+	SuggestFor: []string{"flower", "flour", "flourish"},
+	ValidArgs: []string{
+		"help",
+		"install",
+		"list",
+		"new",
+		"remove",
+		"search",
+		"update",
+	},
+	ArgAliases: []string{
+		"?",
+
+		"i",
+		"add",
+
+		"l",
+		"ls",
+
+		"n",
+		"create",
+
+		"r",
+		"rm",
+		"delete",
+
+		"s",
+		"find",
+
+		"u",
+		"up",
+		"upgrade",
+	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
 		if gameInstallPath, err = resolveGamePath(gameInstallPath); err != nil {
 			return err
