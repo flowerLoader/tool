@@ -34,10 +34,13 @@ func (db *DB) Migrate() error {
 		id TEXT PRIMARY KEY,
 
 		-- META
-		guid TEXT NOT NULL,
-		version TEXT NOT NULL,
 		name TEXT NOT NULL,
+		version TEXT NOT NULL,
 		author TEXT NOT NULL,
+		license TEXT NOT NULL,
+		bugs_url TEXT NOT NULL,
+		homepage TEXT NOT NULL,
+		api_version TEXT NOT NULL,
 
 		-- GITHUB
 		tags TEXT NOT NULL,
