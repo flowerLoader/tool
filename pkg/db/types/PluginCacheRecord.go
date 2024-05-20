@@ -1,7 +1,8 @@
 package types
 
 type PluginCacheRecord struct {
-	ID string // (owner/repo/tag#commit) is the primary key
+	ID        string // (owner/repo/tag#commit) is the primary key
+	UpdatedAt string // Last time the SOURCE material was updated
 
 	// These fields are read from `package.json` of the plugin
 	Name     string

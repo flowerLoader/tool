@@ -8,6 +8,10 @@ import (
 	"github.com/flowerLoader/tool/pkg/db/types"
 )
 
+func now() string {
+	return "2021-07-18 15:04:05"
+}
+
 func TestPluginRegistry(t *testing.T) {
 	convey.Convey("Given a new database", t, func() {
 		db, err := NewDB(":memory:")
@@ -20,6 +24,7 @@ func TestPluginRegistry(t *testing.T) {
 		convey.Convey("When a plugin is upserted and retrieved", func() {
 			plugin := &types.PluginCacheRecord{
 				ID:         "test/repo/tag#commit",
+				UpdatedAt:  now(),
 				Name:       "Test Plugin",
 				Version:    "1.0.0",
 				Author:     "Author Name",
