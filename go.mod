@@ -8,6 +8,7 @@ require (
 	github.com/AlbinoGeek/logxi v0.0.0-20200425095309-d0ab8e34db2d
 	github.com/andygrunwald/vdf v1.1.0
 	github.com/google/go-github/v62 v62.0.0
+	github.com/ncruces/go-sqlite3 v0.15.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	golang.org/x/sys v0.20.0
@@ -23,7 +24,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/ncruces/go-sqlite3 v0.15.0 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
