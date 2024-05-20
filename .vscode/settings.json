@@ -5,8 +5,10 @@
     "bubbletea",
     "charmbracelet",
     "flowerful",
+    "flowerloader",
     "gamedata",
     "GOARCH",
+    "goconvey",
     "golint",
     "isekainosouzousha",
     "libraryfolders",
@@ -14,6 +16,7 @@
     "ncruces",
     "Propful",
     "reactea",
-    "steamapps"
+    "steamapps",
+    "upserted"
   ]
 }
