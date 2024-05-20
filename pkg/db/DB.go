@@ -8,7 +8,7 @@ import (
 type DB struct {
 	conn *sqlite3.Conn
 
-	Plugins *PluginRegistry
+	Plugins IPluginRegistry
 }
 
 func NewDB(filename string) (*DB, error) {
