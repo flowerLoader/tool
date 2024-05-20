@@ -1,9 +1,10 @@
 package db
 
 import (
-	"github.com/flowerLoader/tool/pkg/db/types"
 	"github.com/ncruces/go-sqlite3"
 	_ "github.com/ncruces/go-sqlite3/embed"
+
+	"github.com/flowerLoader/tool/pkg/db/types"
 )
 
 type DB struct {
