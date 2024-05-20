@@ -1,8 +1,12 @@
 package main
 
 import (
+	"path/filepath"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/flowerLoader/tool/pkg/db"
 )
 
 //const PLUGINS_ROOT = "flowerful-plugins"
@@ -13,6 +17,8 @@ var (
 	gameInstallPath  string
 	pluginInputPath  string
 	pluginOutputPath string
+
+	DB *db.DB
 )
 
 func init() {
@@ -81,6 +87,16 @@ var rootCmd = &cobra.Command{
 		}
 
 		viper.Set("game-path", gameInstallPath)
+
+		dbPath := filepath.Join(gameInstallPath, "flower.db")
+		if DB, err = db.NewDB(dbPath); err != nil {
+			return err
+		}
+
+		if err := DB.Migrate(); err != nil {
+			return err
+		}
+
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
