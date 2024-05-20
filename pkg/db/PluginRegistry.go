@@ -2,6 +2,14 @@ package db
 
 import "github.com/flowerLoader/tool/pkg/db/types"
 
+type IPluginRegistry interface {
+	Get(id string) (*types.PluginCacheRecord, error)
+	Upsert(record *types.PluginCacheRecord) error
+}
+
+// Ensure PluginRegistry implements IPluginRegistry
+var _ IPluginRegistry = (*PluginRegistry)(nil)
+
 type PluginRegistry struct {
 	db *DB
 }
@@ -13,27 +21,27 @@ func (r *PluginRegistry) Get(id string) (*types.PluginCacheRecord, error) {
 	}
 	defer stmt.Close()
 
-	stmt.BindText(1, id)
-	plugin := types.PluginCacheRecord{}
-
-	if stmt.Step() {
-		plugin.ID = stmt.ColumnText(0)
-		plugin.Name = stmt.ColumnText(1)
-		plugin.Version = stmt.ColumnText(2)
-		plugin.Author = stmt.ColumnText(3)
-		plugin.License = stmt.ColumnText(4)
-		plugin.BugsURL = stmt.ColumnText(5)
-		plugin.Homepage = stmt.ColumnText(6)
-		plugin.APIVersion = stmt.ColumnText(7)
-		plugin.Tags = stmt.ColumnText(8)
-		plugin.Summary = stmt.ColumnText(9)
-
-		stmt.Reset()
-		return &plugin, nil
+	if err := stmt.BindText(1, id); err != nil {
+		return nil, err
 	}
 
-	stmt.Reset()
-	return nil, nil
+	if !stmt.Step() {
+		return nil, stmt.Err()
+	}
+
+	plugin := types.PluginCacheRecord{}
+	plugin.ID = stmt.ColumnText(0)
+	plugin.Name = stmt.ColumnText(1)
+	plugin.Version = stmt.ColumnText(2)
+	plugin.Author = stmt.ColumnText(3)
+	plugin.License = stmt.ColumnText(4)
+	plugin.BugsURL = stmt.ColumnText(5)
+	plugin.Homepage = stmt.ColumnText(6)
+	plugin.APIVersion = stmt.ColumnText(7)
+	plugin.Tags = stmt.ColumnText(8)
+	plugin.Summary = stmt.ColumnText(9)
+
+	return &plugin, nil
 }
 
 func (reg *PluginRegistry) Upsert(record *types.PluginCacheRecord) error {
@@ -43,18 +51,36 @@ func (reg *PluginRegistry) Upsert(record *types.PluginCacheRecord) error {
 	}
 	defer stmt.Close()
 
-	stmt.BindText(1, record.ID)
-	stmt.BindText(2, record.Name)
-	stmt.BindText(3, record.Version)
-	stmt.BindText(4, record.Author)
-	stmt.BindText(5, record.License)
-	stmt.BindText(6, record.BugsURL)
-	stmt.BindText(7, record.Homepage)
-	stmt.BindText(8, record.APIVersion)
-	stmt.BindText(9, record.Tags)
-	stmt.BindText(10, record.Summary)
-	stmt.Step()
-	stmt.Reset()
+	if err := stmt.BindText(1, record.ID); err != nil {
+		return err
+	}
+	if err := stmt.BindText(2, record.Name); err != nil {
+		return err
+	}
+	if err := stmt.BindText(3, record.Version); err != nil {
+		return err
+	}
+	if err := stmt.BindText(4, record.Author); err != nil {
+		return err
+	}
+	if err := stmt.BindText(5, record.License); err != nil {
+		return err
+	}
+	if err := stmt.BindText(6, record.BugsURL); err != nil {
+		return err
+	}
+	if err := stmt.BindText(7, record.Homepage); err != nil {
+		return err
+	}
+	if err := stmt.BindText(8, record.APIVersion); err != nil {
+		return err
+	}
+	if err := stmt.BindText(9, record.Tags); err != nil {
+		return err
+	}
+	if err := stmt.BindText(10, record.Summary); err != nil {
+		return err
+	}
 
 	return nil
 }
