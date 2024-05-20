@@ -115,13 +115,27 @@ func (p *PluginRegistry) CacheUpdate(plugin types.PluginCacheRecord) error {
 	}
 	defer stmt.Close()
 
-	stmt.BindText(1, plugin.ID)
-	stmt.BindText(2, plugin.GUID)
-	stmt.BindText(3, plugin.Version)
-	stmt.BindText(4, plugin.Name)
-	stmt.BindText(5, plugin.Author)
-	stmt.BindText(6, plugin.Tags)
-	stmt.BindText(7, plugin.Summary)
+	if err := stmt.BindText(1, plugin.ID); err != nil {
+		return err
+	}
+	if err := stmt.BindText(2, plugin.GUID); err != nil {
+		return err
+	}
+	if err := stmt.BindText(3, plugin.Version); err != nil {
+		return err
+	}
+	if err := stmt.BindText(4, plugin.Name); err != nil {
+		return err
+	}
+	if err := stmt.BindText(5, plugin.Author); err != nil {
+		return err
+	}
+	if err := stmt.BindText(6, plugin.Tags); err != nil {
+		return err
+	}
+	if err := stmt.BindText(7, plugin.Summary); err != nil {
+		return err
+	}
 
 	return stmt.Exec()
 }
