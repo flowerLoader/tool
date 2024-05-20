@@ -54,7 +54,7 @@ func searchPlugin(ctx context.Context, query string) error {
 	// Update our cache
 	records := make([]*types.PluginCacheRecord, 0)
 	for _, repo := range repos.Repositories {
-		cacheRecord, err := DB.Plugins.Get(*repo.FullName)
+		cacheRecord, err := DB.Plugins.CacheGet(*repo.FullName)
 		if err != nil || cacheRecord == nil {
 			// We have never encountered this repo before, we must interrogate it
 			analysis, err := githubRepoAnalyze(ctx, *repo.FullName)
@@ -91,7 +91,7 @@ func searchPlugin(ctx context.Context, query string) error {
 		cacheRecord.Summary = *repo.Description
 		cacheRecord.Tags = strings.Join(repo.Topics, ",")
 
-		if err := DB.Plugins.Upsert(cacheRecord); err != nil {
+		if err := DB.Plugins.CachePut(cacheRecord); err != nil {
 			return err
 		}
 

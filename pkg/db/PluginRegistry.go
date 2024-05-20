@@ -6,8 +6,8 @@ import (
 )
 
 type IPluginRegistry interface {
-	Get(id string) (*types.PluginCacheRecord, error)
-	Upsert(record *types.PluginCacheRecord) error
+	CacheGet(id string) (*types.PluginCacheRecord, error)
+	CachePut(record *types.PluginCacheRecord) error
 }
 
 // Ensure PluginRegistry implements IPluginRegistry
@@ -23,7 +23,7 @@ const UPSERT_PLUGIN_CACHE = `INSERT OR REPLACE INTO plugin_cache (
 	id, updated_at, name, version, author, license, bugs_url, homepage, api_version, tags, summary
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
-func (r *PluginRegistry) Get(id string) (*types.PluginCacheRecord, error) {
+func (r *PluginRegistry) CacheGet(id string) (*types.PluginCacheRecord, error) {
 	r.log.Debug("searching for plugin", "id", id)
 
 	stmt, err := r.db.conn.Prepare(SELECT_PLUGIN_CACHE)
@@ -36,7 +36,7 @@ func (r *PluginRegistry) Get(id string) (*types.PluginCacheRecord, error) {
 	return record, stmt.QueryRow(id).Scan(&record.ID, &record.UpdatedAt, &record.Name, &record.Version, &record.Author, &record.License, &record.BugsURL, &record.Homepage, &record.APIVersion, &record.Tags, &record.Summary)
 }
 
-func (reg *PluginRegistry) Upsert(record *types.PluginCacheRecord) error {
+func (reg *PluginRegistry) CachePut(record *types.PluginCacheRecord) error {
 	reg.log.Debug("upserting plugin", "id", record.ID)
 
 	stmt, err := reg.db.conn.Prepare(UPSERT_PLUGIN_CACHE)

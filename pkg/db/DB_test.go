@@ -36,19 +36,19 @@ func TestPluginRegistry(t *testing.T) {
 				Summary:    "A test plugin",
 			}
 
-			err = db.Plugins.Upsert(plugin)
+			err = db.Plugins.CachePut(plugin)
 			convey.So(err, convey.ShouldBeNil)
 
-			actualPlugin, err := db.Plugins.Get(plugin.ID)
+			actualPlugin, err := db.Plugins.CacheGet(plugin.ID)
 			convey.So(err, convey.ShouldBeNil)
 			convey.So(actualPlugin, convey.ShouldResemble, plugin)
 
 			convey.Convey("And when the plugin is updated", func() {
 				plugin.Name = "Updated Plugin"
-				err = db.Plugins.Upsert(plugin)
+				err = db.Plugins.CachePut(plugin)
 				convey.So(err, convey.ShouldBeNil)
 
-				actualPlugin, err := db.Plugins.Get(plugin.ID)
+				actualPlugin, err := db.Plugins.CacheGet(plugin.ID)
 				convey.So(err, convey.ShouldBeNil)
 				convey.So(actualPlugin.Name, convey.ShouldEqual, "Updated Plugin")
 			})
