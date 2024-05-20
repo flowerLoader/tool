@@ -1,37 +1,37 @@
 package db
 
 import (
-	"github.com/ncruces/go-sqlite3"
-	_ "github.com/ncruces/go-sqlite3/embed"
+	log "github.com/AlbinoGeek/logxi/v1"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type DB struct {
-	conn *sqlite3.Conn
+	conn *sqlx.DB
 
 	Plugins IPluginRegistry
 }
 
-func NewDB(filename string) (*DB, error) {
-	conn, err := sqlite3.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	db := &DB{
-		conn: conn,
-	}
+func NewDB(filename string) (db *DB, err error) {
+	db = new(DB)
 
 	db.Plugins = &PluginRegistry{
-		db: db,
+		db:  db,
+		log: log.New("db.plugins"),
+	}
+
+	if db.conn, err = sqlx.Connect("sqlite3", filename); err != nil {
+		return nil, err
 	}
 
 	return db, nil
 }
 
 func (db *DB) Migrate() error {
-	if err := db.conn.Exec(`CREATE TABLE IF NOT EXISTS plugin_cache (
+	if _, err := db.conn.Exec(`CREATE TABLE IF NOT EXISTS plugin_cache (
 		-- (owner/repo/tag#commit) is the primary key
 		id TEXT PRIMARY KEY,
+		updated_at TEXT NOT NULL,
 
 		-- META
 		name TEXT NOT NULL,
@@ -49,7 +49,7 @@ func (db *DB) Migrate() error {
 		return err
 	}
 
-	if err := db.conn.Exec(`CREATE TABLE IF NOT EXISTS plugin_install (
+	if _, err := db.conn.Exec(`CREATE TABLE IF NOT EXISTS plugin_install (
 		-- (owner/repo/tag#commit) is the primary key
 		-- refers to plugin_cache.id
 		id TEXT PRIMARY KEY,
