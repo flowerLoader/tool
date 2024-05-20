@@ -33,6 +33,7 @@ var searchCmd = &cobra.Command{
 			}
 		}
 
+		log.Debug("executing search", "query", sb.String())
 		return searchPlugin(cmd.Context(), sb.String())
 	},
 }
@@ -140,7 +141,7 @@ func searchGithub(ctx context.Context, query string) (*github.RepositoriesSearch
 		TextMatch:   true,
 	}
 
-	log.Debug("Searching GitHub", "query", query)
+	log.Debug("Searching GitHub for repositories", "query", query)
 	repos, _, err := client.Search.Repositories(
 		ctx, fmt.Sprintf("%s topic:flower-plugin", query), queryOpts,
 	)
