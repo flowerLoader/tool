@@ -51,6 +51,7 @@ var rootCmd = &cobra.Command{
 	SuggestFor: []string{"flower", "flour", "flourish"},
 	ValidArgs: []string{
 		"help",
+		"cache",
 		"install",
 		"list",
 		"new",
@@ -60,6 +61,8 @@ var rootCmd = &cobra.Command{
 	},
 	ArgAliases: []string{
 		"?",
+
+		"c",
 
 		"i",
 		"add",
