@@ -54,6 +54,7 @@ func searchPlugin(ctx context.Context, query string) error {
 	}
 
 	// Update our cache
+	records := make([]*types.PluginCacheRecord, 0)
 	for _, repo := range repos.Repositories {
 		cacheRecord, err := DB.Plugins.Get(*repo.FullName)
 		if err != nil || cacheRecord == nil {
@@ -87,6 +88,7 @@ func searchPlugin(ctx context.Context, query string) error {
 		}
 
 		// Update the cache
+		cacheRecord.UpdatedAt = repo.UpdatedAt.Time.Format("2006-01-02 15:04:05")
 		cacheRecord.Author = *repo.Owner.Login
 		cacheRecord.Summary = *repo.Description
 		cacheRecord.Tags = strings.Join(repo.Topics, ",")
@@ -94,17 +96,24 @@ func searchPlugin(ctx context.Context, query string) error {
 		if err := DB.Plugins.Upsert(cacheRecord); err != nil {
 			return err
 		}
+
+		records = append(records, cacheRecord)
 	}
 
 	// Print the results
+	printPluginTable(records)
+
+	fmt.Printf("\n%d/%d results found for %s",
+		len(repos.Repositories),
+		repos.GetTotal(),
+		query)
+
+	return nil
+}
+
+func printPluginTable(records []*types.PluginCacheRecord) {
 	fmt.Print("| Name                 | Version | Author               | License   | Last Updated               |\n|----------------------|---------|----------------------|-----------|----------------------------|\n")
-
-	for _, repo := range repos.Repositories {
-		cacheRecord, err := DB.Plugins.Get(*repo.FullName)
-		if err != nil {
-			return err
-		}
-
+	for _, cacheRecord := range records {
 		name := cacheRecord.Name
 		if len(name) > 20 {
 			name = name[:17] + "..."
@@ -120,15 +129,8 @@ func searchPlugin(ctx context.Context, query string) error {
 			cacheRecord.Version,
 			author,
 			cacheRecord.License,
-			repo.UpdatedAt.Local().Format("January 2, 2006 3:04 PM"))
+			cacheRecord.UpdatedAt)
 	}
-
-	fmt.Printf("\n%d/%d results found for %s",
-		len(repos.Repositories),
-		repos.GetTotal(),
-		query)
-
-	return nil
 }
 
 func searchGithub(ctx context.Context, query string) (*github.RepositoriesSearchResult, error) {
