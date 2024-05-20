@@ -11,12 +11,16 @@
     "goconvey",
     "golint",
     "isekainosouzousha",
+    "jmoiron",
     "libraryfolders",
     "londek",
+    "mattn",
     "ncruces",
     "Propful",
     "reactea",
+    "sqlx",
     "steamapps",
-    "upserted"
+    "upserted",
+    "upserting"
   ]
 }
