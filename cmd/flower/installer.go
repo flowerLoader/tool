@@ -7,7 +7,7 @@ import (
 
 	log "github.com/AlbinoGeek/logxi/v1"
 
-	"github.com/flowerLoader/tool/steam"
+	"github.com/flowerLoader/tool/pkg/steam"
 )
 
 var (
