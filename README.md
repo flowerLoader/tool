@@ -9,14 +9,13 @@
 
 [![Join the Discord](https://img.shields.io/discord/1239786034561028136?color=5865F2&label=Join+The+Discord&logo=discord&style=for-the-badge)](https://discord.gg/kHSEXyawFY)
 
-<h2>Supported Games</h2>
+<h3>Supported Games</h3>
 
 [![Steam](https://img.shields.io/badge/Steam-Creator_Of_Another_World-1b2838?style=for-the-badge&logo=steam)](https://store.steampowered.com/app/2761610/Creator_of_Another_World/)  
 by [kuetaro (くえたろう)](https://store.steampowered.com/curator/44822906)
 
-## Table of Contents
+<h2>Table of Contents</h2>
 
-- [Table of Contents](#table-of-contents)
 - [Installing the Tool](#installing-the-tool)
   - [From a GitHub Release](#from-a-github-release)
   - [From Source](#from-source)
