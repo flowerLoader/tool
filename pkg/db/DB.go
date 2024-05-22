@@ -78,8 +78,8 @@ func (db *DB) Migrate() error {
 }
 
 func (db *DB) Stat() (stat Stats, err error) {
-	return stat, db.conn.Get(&stat, `SELECT
+	return stat, db.conn.Get(&stat.Counts, `SELECT
 		(SELECT COUNT(*) FROM plugin_cache) AS cached,
 		(SELECT COUNT(*) FROM plugin_install) AS cloned,
-		(SELECT COUNT(*) FROM plugin_install WHERE enabled = 'true') AS enabled`)
+		(SELECT COUNT(*) FROM plugin_install WHERE enabled = true) AS enabled`)
 }
