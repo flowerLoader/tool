@@ -40,7 +40,12 @@ func (r *PluginRegistry) CacheGet(id string) (*types.PluginCacheRecord, error) {
 	defer stmt.Close()
 
 	record := new(types.PluginCacheRecord)
-	return record, stmt.QueryRow(id).Scan(&record.ID, &record.UpdatedAt, &record.Name, &record.Version, &record.Author, &record.License, &record.BugsURL, &record.Homepage, &record.APIVersion, &record.Tags, &record.Summary)
+	err = stmt.QueryRow(id).Scan(&record.ID, &record.UpdatedAt, &record.Name, &record.Version, &record.Author, &record.License, &record.BugsURL, &record.Homepage, &record.APIVersion, &record.Tags, &record.Summary)
+	if err != nil && err.Error() == "sql: no rows in result set" {
+		return nil, nil // Not found
+	}
+
+	return record, err
 }
 
 func (r *PluginRegistry) CachePut(record *types.PluginCacheRecord) error {
@@ -80,5 +85,10 @@ func (r *PluginRegistry) Get(id string) (*types.PluginInstallRecord, error) {
 	defer stmt.Close()
 
 	record := new(types.PluginInstallRecord)
-	return record, stmt.QueryRow(id).Scan(&record.ID, &record.Enabled, &record.InstalledAt, &record.UpdatedAt)
+	err = stmt.QueryRow(id).Scan(&record.ID, &record.Enabled, &record.InstalledAt, &record.UpdatedAt)
+	if err != nil && err.Error() == "sql: no rows in result set" {
+		return nil, nil // Not found
+	}
+
+	return record, err
 }
