@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -103,7 +104,7 @@ func cloneOrOpen(ctx context.Context, url, path string, pull bool) (*git.Reposit
 	repo, err := git.PlainCloneContext(
 		ctx, path, false, &git.CloneOptions{
 			Depth:             1,
-			Progress:          nil,
+			Progress:          os.Stdout,
 			RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 			RemoteName:        "origin",
 			ShallowSubmodules: true,
