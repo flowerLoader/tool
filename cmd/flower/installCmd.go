@@ -12,6 +12,8 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/flowerLoader/tool/pkg/db/types"
 )
 
 var installCmd = &cobra.Command{
@@ -41,21 +43,26 @@ func installPlugin(ctx context.Context, name string) error {
 	log.Debug("Resolved Plugin Name", "input", name, "resolved", fullName)
 
 	// Check if the plugin is already installed
-	// plugin, err := DB.Plugins.Get(fullName)
-	// if err != nil {
-	// 	return err
-	// }
+	plugin, err := DB.Plugins.Get(fullName)
+	if err != nil {
+		return err
+	}
 
-	// if plugin != nil {
-	// 	return ErrPluginAlreadyInstalled
-	// }
+	if plugin != nil {
+		log.Warn("Plugin Already Installed", "name", fullName)
+		fmt.Printf("Plugin %s is already installed\n", fullName)
+
+		withoutNS := strings.SplitN(fullName, "/", 2)[1]
+		fmt.Printf("To update the plugin, use `flower update %s`\n", withoutNS)
+
+		return nil
+	}
 
 	if strings.HasPrefix(fullName, "github.com/") {
 		return installPluginGithub(ctx, fullName)
 	}
 
-	// return installPluginLocal(ctx, fullName)
-	return nil
+	return installPluginLocal(ctx, fullName)
 }
 
 func installPluginGithub(ctx context.Context, fullName string) error {
@@ -67,18 +74,21 @@ func installPluginGithub(ctx context.Context, fullName string) error {
 	log.Debug("Installing GitHub Plugin", "name", fullName, "took", time.Since(t).String())
 
 	// Add the plugin to the database
-	// return DB.Plugins.Add(&types.PluginCacheRecord{
-	// 	ID: fullName,
-	// })
-	return nil
+	return DB.Plugins.Add(&types.PluginInstallRecord{
+		ID:          fullName,
+		Enabled:     true,
+		InstalledAt: types.FormatTime(time.Now()),
+	})
 }
 
-// func installPluginLocal(ctx context.Context, fullName string) error {
-// 	// Add the plugin to the database
-// 	return DB.Plugins.Add(&types.PluginCacheRecord{
-// 		ID: fullName,
-// 	})
-// }
+func installPluginLocal(ctx context.Context, fullName string) error {
+	// Add the plugin to the database
+	return DB.Plugins.Add(&types.PluginInstallRecord{
+		ID:          fullName,
+		Enabled:     true,
+		InstalledAt: types.FormatTime(time.Now()),
+	})
+}
 
 func cloneGitHubPlugin(ctx context.Context, fullName string) error {
 	var (
