@@ -24,9 +24,9 @@ var (
 func init() {
 	rootCmd.PersistentFlags().StringVar(&gameInstallPath, "game-path", "",
 		"Path to the game's installation directory")
-	rootCmd.PersistentFlags().StringVar(&pluginInputPath, "input-path", "source",
+	rootCmd.PersistentFlags().StringVar(&pluginInputPath, "input-path", "dist/src",
 		"Path to local plugins to transpile")
-	rootCmd.PersistentFlags().StringVar(&pluginOutputPath, "output-path", "obj",
+	rootCmd.PersistentFlags().StringVar(&pluginOutputPath, "output-path", "dist/obj",
 		"Path to store transpiled plugins")
 	rootCmd.PersistentFlags().Bool("debug", false, "Scream and shout")
 
