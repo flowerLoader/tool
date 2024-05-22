@@ -27,6 +27,10 @@ func NewDB(filename string) (db *DB, err error) {
 	return db, nil
 }
 
+func (db *DB) Close() error {
+	return db.conn.Close()
+}
+
 func (db *DB) Migrate() error {
 	if _, err := db.conn.Exec(`CREATE TABLE IF NOT EXISTS plugin_cache (
 		-- (owner/repo/tag#commit) is the primary key
@@ -63,8 +67,4 @@ func (db *DB) Migrate() error {
 	}
 
 	return nil
-}
-
-func (db *DB) Close() error {
-	return db.conn.Close()
 }
