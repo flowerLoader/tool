@@ -86,7 +86,7 @@ func searchPlugin(ctx context.Context, query string) error {
 		}
 
 		// Update the cache
-		cacheRecord.UpdatedAt = repo.UpdatedAt.Time.Format("2006-01-02 15:04:05")
+		cacheRecord.UpdatedAt = types.FormatTime(repo.UpdatedAt.Time)
 		cacheRecord.Author = *repo.Owner.Login
 		cacheRecord.Summary = *repo.Description
 		cacheRecord.Tags = strings.Join(repo.Topics, ",")

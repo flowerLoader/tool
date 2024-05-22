@@ -9,7 +9,7 @@ import (
 )
 
 func now() string {
-	return "2021-07-18 15:04:05"
+	return "2021-07-18 15:04:05+00:00" // rfc3339
 }
 
 func TestPluginRegistry(t *testing.T) {
