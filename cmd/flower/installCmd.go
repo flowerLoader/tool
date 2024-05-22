@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -76,15 +77,24 @@ func installPluginGithub(ctx context.Context, fullName string) error {
 		ID:          fullName,
 		Enabled:     true,
 		InstalledAt: types.FormatTime(time.Now()),
+		Path:        fmt.Sprintf("{INPUT}%s", fullName),
 	})
 }
 
 func installPluginLocal(ctx context.Context, fullName string) error {
+	log.Debug("Installing Local Plugin", "name", fullName)
+
+	// Check if the plugin exists
+	if _, err := os.Stat(fullName); err != nil {
+		return err
+	}
+
 	// Add the plugin to the database
 	return DB.Plugins.Add(&types.PluginInstallRecord{
 		ID:          fullName,
 		Enabled:     true,
 		InstalledAt: types.FormatTime(time.Now()),
+		Path:        fullName,
 	})
 }
 

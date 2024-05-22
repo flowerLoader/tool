@@ -5,6 +5,7 @@ type PluginInstallRecord struct {
 
 	// Installation Status
 	Enabled     bool
+	Path        string
 	InstalledAt string // encoded as RFC3339
 	UpdatedAt   string // encoded as RFC3339
 }

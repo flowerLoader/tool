@@ -12,6 +12,14 @@ type DB struct {
 	Plugins IPluginRegistry
 }
 
+type Stats struct {
+	Counts struct {
+		Cached  int
+		Cloned  int
+		Enabled int
+	}
+}
+
 func NewDB(filename string) (db *DB, err error) {
 	db = new(DB)
 
@@ -67,4 +75,11 @@ func (db *DB) Migrate() error {
 	}
 
 	return nil
+}
+
+func (db *DB) Stat() (stat Stats, err error) {
+	return stat, db.conn.Get(&stat, `SELECT
+		(SELECT COUNT(*) FROM plugin_cache) AS cached,
+		(SELECT COUNT(*) FROM plugin_install) AS cloned,
+		(SELECT COUNT(*) FROM plugin_install WHERE enabled = 'true') AS enabled`)
 }

@@ -64,6 +64,7 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
+		viper.Set("loaded-db-path", dbPath)
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
