@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -116,27 +115,6 @@ func installPluginLocal(cmd *cobra.Command, fullName string) error {
 		InstalledAt: types.FormatTime(time.Now()),
 		Path:        fullName,
 	})
-}
-
-// parsePluginName takes a partial plugin name (full URL, org/repo, or local
-// path) and returns the full name of the plugin ({github.com|local}/org/repo)
-func parsePluginName(name string) string {
-	u, err := url.Parse(name)
-	if err == nil && u.Scheme != "" {
-		// https://www.github.com/flowerLoader/tool
-		// -> github.com/flowerLoader/tool
-		return strings.TrimPrefix(u.Hostname(), "www.") + u.Path
-	}
-
-	// /path/to/plugin (or C:\path\to\plugin)
-	// -> local/pluginAuthor/pluginName
-	if strings.HasPrefix(name, "/") || strings.Contains(name, ":\\") {
-		return "local/" + strings.TrimPrefix(name, "/")
-	}
-
-	// flowerLoader/tool
-	// -> github.com/flowerLoader/tool
-	return "github.com/" + name
 }
 
 var (
