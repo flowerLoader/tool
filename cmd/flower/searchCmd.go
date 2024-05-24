@@ -99,7 +99,25 @@ func searchPlugin(ctx context.Context, query string) error {
 	}
 
 	// Print the results
-	printPluginTable(records)
+	fmt.Print("| Name                 | Version | Author               | License   | Last Updated               |\n|----------------------|---------|----------------------|-----------|----------------------------|\n")
+	for _, cacheRecord := range records {
+		name := cacheRecord.Name
+		if len(name) > 20 {
+			name = name[:17] + "..."
+		}
+
+		author := cacheRecord.Author
+		if len(author) > 20 {
+			author = author[:17] + "..."
+		}
+
+		fmt.Printf("| %-20s | %-7s | %-20s | %-9s | %-26s |\n",
+			name,
+			cacheRecord.Version,
+			author,
+			cacheRecord.License,
+			cacheRecord.UpdatedAt)
+	}
 
 	fmt.Printf("\n%d/%d results found for %s",
 		len(repos.Repositories),
