@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	log "github.com/AlbinoGeek/logxi/v1"
 	"github.com/spf13/cobra"
+
+	"github.com/flowerLoader/tool/pkg/db/types"
 )
 
 var listCmd = &cobra.Command{
@@ -33,7 +36,7 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fmt.Print("| Name                 | Version | Author               | Installed | Last Updated               |\n|----------------------|---------|----------------------|-----------|----------------------------|\n")
+	fmt.Print("| Name                 | Version | Author               | Installed At             | Last Updated             |\n|----------------------|---------|----------------------|--------------------------|--------------------------|\n")
 	for _, installRecord := range records {
 		cacheRecord, err := DB.Plugins.CacheGet(installRecord.ID)
 		if err != nil || cacheRecord == nil {
@@ -51,11 +54,11 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 			author = author[:17] + "..."
 		}
 
-		fmt.Printf("| %-20s | %-7s | %-20s | %-9s | %-26s |\n",
+		fmt.Printf("| %-20s | %-7s | %-20s | %-24s | %-24s |\n",
 			name,
 			cacheRecord.Version,
 			author,
-			installRecord.InstalledAt,
-			cacheRecord.UpdatedAt)
+			types.MustParseTime(installRecord.InstalledAt).Local().Format(time.RFC822),
+			types.MustParseTime(cacheRecord.UpdatedAt).Local().Format(time.RFC822))
 	}
 }
