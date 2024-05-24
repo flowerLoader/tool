@@ -68,7 +68,7 @@ func onAddCommandRun(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := installPluginLocal(cmd.Context(), fullName); err != nil {
+	if err := installPluginLocal(cmd, fullName); err != nil {
 		log.Error("Failed to install Local Plugin", "error", err)
 		return
 	}
@@ -92,12 +92,21 @@ func installPluginGithub(ctx context.Context, pluginRoot, fullName string) error
 	})
 }
 
-func installPluginLocal(ctx context.Context, fullName string) error {
+func installPluginLocal(cmd *cobra.Command, fullName string) error {
 	log.Debug("Installing Local Plugin", "name", fullName)
 
 	// Check if the plugin exists
 	if _, err := os.Stat(fullName); err != nil {
-		return err
+		// expand using inputPath
+		inputPath, err := cmd.Flags().GetString("input-path")
+		if err != nil {
+			return err
+		}
+
+		fullName = fmt.Sprintf("%s/%s", inputPath, fullName)
+		if _, err := os.Stat(fullName); err != nil {
+			return err
+		}
 	}
 
 	// Add the plugin to the database

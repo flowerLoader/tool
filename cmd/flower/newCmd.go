@@ -38,7 +38,7 @@ func onNewPluginRun(cmd *cobra.Command, args []string) {
 
 	// Clone the template repository and install it, change the git remote, etc.
 
-	if err := installPluginLocal(cmd.Context(), fullName); err != nil {
+	if err := installPluginLocal(cmd, fullName); err != nil {
 		log.Fatal("failed to install new plugin", "plugin", fullName, "error", err)
 	}
 }
