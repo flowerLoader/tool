@@ -2,7 +2,7 @@ package main
 
 const (
 	APPNAME    = "flower"
-	APPVERSION = "0.1.0"
+	APPVERSION = "0.2.0"
 )
 
 func main() {
