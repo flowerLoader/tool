@@ -52,7 +52,6 @@ func onAddCommandRun(cmd *cobra.Command, args []string) {
 
 		withoutNS := strings.SplitN(fullName, "/", 2)[1]
 		fmt.Printf("To update the plugin, use `flower update %s`\n", withoutNS)
-
 		return
 	}
 
@@ -65,8 +64,8 @@ func onAddCommandRun(cmd *cobra.Command, args []string) {
 	if strings.HasPrefix(fullName, "github.com/") {
 		if err := installPluginGithub(cmd.Context(), inputPath, fullName); err != nil {
 			log.Error("Failed to install GitHub Plugin", "error", err)
-			return
 		}
+		return
 	}
 
 	if err := installPluginLocal(cmd.Context(), fullName); err != nil {
