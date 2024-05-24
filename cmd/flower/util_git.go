@@ -10,15 +10,10 @@ import (
 
 	log "github.com/AlbinoGeek/logxi/v1"
 	"github.com/go-git/go-git/v5"
-	"github.com/spf13/viper"
 )
 
-func cloneGitPlugin(ctx context.Context, baseURL, fullName string) error {
-	var (
-		clonePath = fmt.Sprintf("%s/%s", viper.GetString("input-path"), fullName)
-		parts     = strings.Split(fullName, "/")
-	)
-
+func cloneGitPlugin(ctx context.Context, baseURL, clonePath, fullName string) error {
+	parts := strings.Split(fullName, "/")
 	if len(parts) < 2 {
 		return errors.New("invalid plugin name")
 	}

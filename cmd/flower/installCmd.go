@@ -22,9 +22,11 @@ var installCmd = &cobra.Command{
 	Long:    "Install a plugin from a git repository or local file",
 	Example: `flower install FlowerTeam.LimitBreaker`,
 	Args:    cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		plugin := args[0]
-		return installPlugin(cmd.Context(), plugin)
+		if err := installPlugin(cmd.Context(), plugin); err != nil {
+			log.Fatal("failed to install plugin", "plugin", plugin, "error", err)
+		}
 	},
 }
 
@@ -57,17 +59,23 @@ func installPlugin(ctx context.Context, name string) error {
 		return nil
 	}
 
+	inputPath, err := rootCmd.Flags().GetString("input-path")
+	if err != nil {
+		return err
+	}
+
 	if strings.HasPrefix(fullName, "github.com/") {
-		return installPluginGithub(ctx, fullName)
+		return installPluginGithub(ctx, inputPath, fullName)
 	}
 
 	return installPluginLocal(ctx, fullName)
 }
 
-func installPluginGithub(ctx context.Context, fullName string) error {
+func installPluginGithub(ctx context.Context, pluginRoot, fullName string) error {
 	log.Debug("Installing GitHub Plugin", "name", fullName)
 	t := time.Now()
-	if err := cloneGitPlugin(ctx, "https://github.com", fullName); err != nil {
+	if err := cloneGitPlugin(ctx, "https://github.com", fmt.Sprintf(
+		"%s/%s", pluginRoot, fullName), fullName); err != nil {
 		return err
 	}
 	log.Debug("Installing GitHub Plugin", "name", fullName, "took", time.Since(t).String())
