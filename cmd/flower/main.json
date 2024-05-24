@@ -1,0 +1,52 @@
+{
+  "games": [
+    {
+      "loader": {
+        "id": "github.com/flowerLoader/core#branch=devel-2",
+        "base": [
+          "game",
+          "gamedata/game"
+        ],
+        "build": {
+          "id": "esbuild",
+          "entrypoints": [
+            "gameSupport/games.coaw.ts"
+          ]
+        },
+        "map": {
+          "logger.html": "logger.html",
+          "logger.css": "css/logger.css"
+        }
+      },
+      "meta": {
+        "name": {
+          "en": "Creator of Another World",
+          "jp": "異世界の創造者"
+        },
+        "os": [
+          "linux",
+          "windows"
+        ]
+      },
+      "subsystem": {
+        "id": "steam",
+        "appid": 2761610,
+        "appname": "isekainosouzousha"
+      }
+    }
+  ],
+  "providers": [
+    {
+      "name": "GitHub",
+      "hosts": [
+        "github.com"
+      ],
+      "schemas": [
+        "git",
+        "http",
+        "https"
+      ],
+      "subsystem": "git"
+    }
+  ]
+}
