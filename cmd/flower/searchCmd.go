@@ -111,7 +111,7 @@ func searchPlugin(ctx context.Context, query string) error {
 	time.Sleep(time.Millisecond * 10)
 
 	// Print the results
-	fmt.Print("\n| Name                 | Version | Author               | License      | Last Updated               |\n|----------------------|---------|----------------------|--------------|----------------------------|\n")
+	fmt.Print("\n| Name                 | Version | Author               | License      | Last Updated             |\n|----------------------|---------|----------------------|--------------|--------------------------|\n")
 	for _, cacheRecord := range records {
 		name := cacheRecord.Name
 		if len(name) > 20 {
@@ -123,12 +123,12 @@ func searchPlugin(ctx context.Context, query string) error {
 			author = author[:17] + "..."
 		}
 
-		fmt.Printf("| %-20s | %-7s | %-20s | %-12s | %-26s |\n",
+		fmt.Printf("| %-20s | %-7s | %-20s | %-12s | %-24s |\n",
 			name,
 			cacheRecord.Version,
 			author,
 			cacheRecord.License,
-			cacheRecord.UpdatedAt)
+			types.MustParseTime(cacheRecord.UpdatedAt).Local().Format(time.RFC822))
 	}
 
 	fmt.Printf("\n%d/%d results found for %s",
