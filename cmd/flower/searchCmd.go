@@ -74,7 +74,7 @@ func searchPlugin(ctx context.Context, query string) error {
 			}
 
 			cacheRecord = &types.PluginCacheRecord{
-				ID:         *repo.FullName,
+				ID:         fmt.Sprintf("github.com/%s", *repo.FullName),
 				Version:    analysis.Version,
 				Name:       analysis.Name,
 				Author:     analysis.Author,
