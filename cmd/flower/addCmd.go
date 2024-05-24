@@ -15,38 +15,35 @@ import (
 	"github.com/flowerLoader/tool/pkg/db/types"
 )
 
-var installCmd = &cobra.Command{
-	Use:     "install",
+var addCmd = &cobra.Command{
+	Use:     "add",
 	Aliases: []string{"i", "add", "get", "fetch"},
-	Short:   "Install a plugin",
-	Long:    "Install a plugin from a git repository or local file",
-	Example: `flower install FlowerTeam.LimitBreaker`,
+	Short:   "Add a plugin",
+	Long:    "Add a plugin from a git repository or local file",
+	Example: `flower add FlowerTeam.LimitBreaker`,
 	Args:    cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		plugin := args[0]
-		if err := installPlugin(cmd.Context(), plugin); err != nil {
-			log.Fatal("failed to install plugin", "plugin", plugin, "error", err)
-		}
-	},
+	Run:     onAddCommandRun,
 }
 
 func init() {
-	rootCmd.AddCommand(installCmd)
+	rootCmd.AddCommand(addCmd)
 }
 
-func installPlugin(ctx context.Context, name string) error {
+func onAddCommandRun(cmd *cobra.Command, args []string) {
 	// `plugin` is either a git repository (full URL, or org/repo), or local path
 	// If it's a git repository, clone it into the plugins directory
 	// If it's a local path, add a reference to it in the plugins directory
 
 	// Parse the plugin name
+	name := args[0]
 	fullName := parsePluginName(name)
 	log.Debug("Resolved Plugin Name", "input", name, "resolved", fullName)
 
 	// Check if the plugin is already installed
 	plugin, err := DB.Plugins.Get(fullName)
 	if err != nil {
-		return err
+		log.Error("Failed to query plugin database", "error", err)
+		return
 	}
 
 	if plugin != nil {
@@ -56,19 +53,26 @@ func installPlugin(ctx context.Context, name string) error {
 		withoutNS := strings.SplitN(fullName, "/", 2)[1]
 		fmt.Printf("To update the plugin, use `flower update %s`\n", withoutNS)
 
-		return nil
+		return
 	}
 
 	inputPath, err := rootCmd.Flags().GetString("input-path")
 	if err != nil {
-		return err
+		log.Error("Failed to query input path", "error", err)
+		return
 	}
 
 	if strings.HasPrefix(fullName, "github.com/") {
-		return installPluginGithub(ctx, inputPath, fullName)
+		if err := installPluginGithub(cmd.Context(), inputPath, fullName); err != nil {
+			log.Error("Failed to install GitHub Plugin", "error", err)
+			return
+		}
 	}
 
-	return installPluginLocal(ctx, fullName)
+	if err := installPluginLocal(cmd.Context(), fullName); err != nil {
+		log.Error("Failed to install Local Plugin", "error", err)
+		return
+	}
 }
 
 func installPluginGithub(ctx context.Context, pluginRoot, fullName string) error {
