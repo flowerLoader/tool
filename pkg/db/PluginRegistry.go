@@ -11,6 +11,7 @@ type IPluginRegistry interface {
 
 	Add(record *types.PluginInstallRecord) error
 	Get(id string) (*types.PluginInstallRecord, error)
+	List() ([]*types.PluginInstallRecord, error)
 }
 
 // Ensure PluginRegistry implements IPluginRegistry
@@ -21,6 +22,7 @@ type PluginRegistry struct {
 	log log.Logger
 }
 
+const SELECT_ALL_PLUGIN = `SELECT * FROM plugin_install`
 const SELECT_PLUGIN = `SELECT * FROM plugin_install WHERE id = ?`
 const SELECT_PLUGIN_CACHE = `SELECT * FROM plugin_cache WHERE id = ?`
 const UPSERT_PLUGIN_CACHE = `INSERT OR REPLACE INTO plugin_cache (
@@ -91,4 +93,27 @@ func (r *PluginRegistry) Get(id string) (*types.PluginInstallRecord, error) {
 	}
 
 	return record, err
+}
+
+func (r *PluginRegistry) List() ([]*types.PluginInstallRecord, error) {
+	r.log.Debug("listing all plugins")
+
+	rows, err := r.db.conn.Query(SELECT_ALL_PLUGIN)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var records []*types.PluginInstallRecord
+	for rows.Next() {
+		record := new(types.PluginInstallRecord)
+		err = rows.Scan(&record.ID, &record.Enabled, &record.InstalledAt, &record.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		records = append(records, record)
+	}
+
+	return records, nil
 }
