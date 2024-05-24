@@ -15,27 +15,24 @@ var infoCmd = &cobra.Command{
 	Long:    "Get detailed information about a plugin by name",
 	Example: `flower info LimitBreaker`,
 	Args:    cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Debug("executing info", "query", args[0])
-		if err := infoPlugin(args[0]); err != nil {
-			log.Fatal("failed to get plugin info", "error", err)
-		}
-	},
+	Run:     onInfoCommandRun,
 }
 
 func init() {
 	rootCmd.AddCommand(infoCmd)
 }
 
-func infoPlugin(query string) error {
+func onInfoCommandRun(cmd *cobra.Command, args []string) {
+	query := strings.Join(args, " ")
 	cacheRecord, err := DB.Plugins.CacheGet(query)
 	if err != nil {
-		return err
+		log.Error("Failed to get plugin info from cache", "error", err)
+		return
 	}
 
 	if cacheRecord == nil {
 		fmt.Printf("flower > Try running 'flower search %s' to find it\n", query)
-		return nil
+		return
 	}
 
 	fmt.Printf(strings.TrimSpace(`
@@ -51,6 +48,4 @@ Summary        : %s
 Homepage       : %s
 Report Bugs At : %s
 `), cacheRecord.ID, cacheRecord.Name, cacheRecord.Author, cacheRecord.Version, cacheRecord.APIVersion, cacheRecord.License, cacheRecord.Tags, cacheRecord.UpdatedAt, cacheRecord.Summary, cacheRecord.Homepage, cacheRecord.BugsURL)
-
-	return nil
 }
