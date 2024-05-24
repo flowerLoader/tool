@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	log "github.com/AlbinoGeek/logxi/v1"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ var listCmd = &cobra.Command{
 	Long:    "List installed plugins by name, author, tags or summary",
 	Example: `flower list`,
 	Args:    cobra.NoArgs,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		var sb strings.Builder
 
 		// quote-parse using strconv
@@ -27,7 +28,9 @@ var listCmd = &cobra.Command{
 			}
 		}
 
-		return listPlugins(cmd.Context(), sb.String())
+		if err := listPlugins(cmd.Context(), sb.String()); err != nil {
+			log.Fatal("failed to list plugins", "error", err)
+		}
 	},
 }
 

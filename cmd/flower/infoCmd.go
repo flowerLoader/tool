@@ -15,9 +15,11 @@ var infoCmd = &cobra.Command{
 	Long:    "Get detailed information about a plugin by name",
 	Example: `flower info LimitBreaker`,
 	Args:    cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		log.Debug("executing info", "query", args[0])
-		return infoPlugin(args[0])
+		if err := infoPlugin(args[0]); err != nil {
+			log.Fatal("failed to get plugin info", "error", err)
+		}
 	},
 }
 
