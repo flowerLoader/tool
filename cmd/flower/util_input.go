@@ -8,7 +8,7 @@ import (
 )
 
 func promptConfirm(prompt string) bool {
-	log.Info(prompt, " [y/N]")
+	log.Warn(prompt, " [y/N]")
 
 	var response string
 	if _, err := fmt.Scanln(&response); err != nil {
