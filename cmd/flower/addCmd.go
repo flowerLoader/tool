@@ -60,6 +60,8 @@ func onAddCommandRun(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	setupProgress()
+
 	if strings.HasPrefix(fullName, "github.com/") {
 		if err := installPluginGithub(cmd.Context(), inputPath, fullName); err != nil {
 			log.Error("Failed to install GitHub Plugin", "error", err)
@@ -74,12 +76,14 @@ func onAddCommandRun(cmd *cobra.Command, args []string) {
 }
 
 func installPluginGithub(ctx context.Context, pluginRoot, fullName string) error {
+	_, done := newTracker("Installing " + fullName)
 	log.Debug("Installing GitHub Plugin", "name", fullName)
 	t := time.Now()
 	if err := cloneGitPlugin(ctx, "https://github.com", fmt.Sprintf(
 		"%s/%s", pluginRoot, fullName), fullName); err != nil {
 		return err
 	}
+	done()
 	log.Debug("Installing GitHub Plugin", "name", fullName, "took", time.Since(t).String())
 
 	// Add the plugin to the database
