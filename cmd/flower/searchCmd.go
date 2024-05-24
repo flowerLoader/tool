@@ -59,9 +59,11 @@ func searchPlugin(ctx context.Context, query string) error {
 	// Update our cache
 	records := make([]*types.PluginCacheRecord, 0)
 	for _, repo := range repos.Repositories {
-		_, done = newTracker(fmt.Sprintf("Analyzing %s", *repo.FullName))
-		cacheRecord, err := DB.Plugins.CacheGet(*repo.FullName)
+		cacheRecord, err := DB.Plugins.CacheGet(
+			fmt.Sprintf("github.com/%s", *repo.FullName))
 		if err != nil || cacheRecord == nil {
+			_, done = newTracker(fmt.Sprintf("Analyzing %s", *repo.FullName))
+
 			// We have never encountered this repo before, we must interrogate it
 			analysis, err := githubRepoAnalyze(ctx, *repo.FullName)
 			if err != nil {
@@ -89,6 +91,8 @@ func searchPlugin(ctx context.Context, query string) error {
 				Homepage:   analysis.Homepage,
 				APIVersion: apiVersion,
 			}
+
+			done()
 		}
 
 		// Update the cache
@@ -102,7 +106,6 @@ func searchPlugin(ctx context.Context, query string) error {
 		}
 
 		records = append(records, cacheRecord)
-		done()
 	}
 	pw.Stop()
 	time.Sleep(time.Millisecond * 10)
