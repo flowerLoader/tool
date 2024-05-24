@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/AlbinoGeek/logxi/v1"
 	"github.com/Masterminds/semver/v3"
@@ -41,7 +42,11 @@ func init() {
 }
 
 func searchPlugin(ctx context.Context, query string) error {
+	setupProgress()
+
+	_, done := newTracker("Retrieving search results from GitHub")
 	repos, err := githubSearch(ctx, query)
+	done()
 	if err != nil {
 		return err
 	}
@@ -54,6 +59,7 @@ func searchPlugin(ctx context.Context, query string) error {
 	// Update our cache
 	records := make([]*types.PluginCacheRecord, 0)
 	for _, repo := range repos.Repositories {
+		_, done = newTracker(fmt.Sprintf("Analyzing %s", *repo.FullName))
 		cacheRecord, err := DB.Plugins.CacheGet(*repo.FullName)
 		if err != nil || cacheRecord == nil {
 			// We have never encountered this repo before, we must interrogate it
@@ -96,10 +102,13 @@ func searchPlugin(ctx context.Context, query string) error {
 		}
 
 		records = append(records, cacheRecord)
+		done()
 	}
+	pw.Stop()
+	time.Sleep(time.Millisecond * 10)
 
 	// Print the results
-	fmt.Print("| Name                 | Version | Author               | License   | Last Updated               |\n|----------------------|---------|----------------------|-----------|----------------------------|\n")
+	fmt.Print("\n| Name                 | Version | Author               | License      | Last Updated               |\n|----------------------|---------|----------------------|--------------|----------------------------|\n")
 	for _, cacheRecord := range records {
 		name := cacheRecord.Name
 		if len(name) > 20 {
@@ -111,7 +120,7 @@ func searchPlugin(ctx context.Context, query string) error {
 			author = author[:17] + "..."
 		}
 
-		fmt.Printf("| %-20s | %-7s | %-20s | %-9s | %-26s |\n",
+		fmt.Printf("| %-20s | %-7s | %-20s | %-12s | %-26s |\n",
 			name,
 			cacheRecord.Version,
 			author,
