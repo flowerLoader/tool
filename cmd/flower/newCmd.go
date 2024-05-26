@@ -11,7 +11,7 @@ var newCmd = &cobra.Command{
 	Short:   "Create a new plugin",
 	Long:    "Create a new plugin from a template repository. Queries the user for the plugin name, description, etc. and then clones the template repository into the plugins directory.",
 	Example: `flower new`,
-	Args:    cobra.NoArgs,
+	Args:    cobra.ExactArgs(1),
 	Run:     onNewPluginRun,
 }
 
