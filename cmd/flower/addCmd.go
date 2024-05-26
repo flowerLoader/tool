@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath" // Added for cross-platform path handling
 	"strings"
 	"time"
 
@@ -82,8 +83,8 @@ func installPluginGithub(ctx context.Context, pluginRoot, fullName string) error
 	_, done := newTracker("Installing " + fullName)
 	log.Debug("Installing GitHub Plugin", "name", fullName)
 	t := time.Now()
-	if err := cloneGitPlugin(ctx, "https://github.com", fmt.Sprintf(
-		"%s/%s", pluginRoot, fullName), fullName); err != nil {
+	clonePath := filepath.Join(pluginRoot, fullName)
+	if err := cloneGitPlugin(ctx, "https://github.com", clonePath, fullName); err != nil {
 		return err
 	}
 	done()
@@ -109,7 +110,7 @@ func installPluginLocal(cmd *cobra.Command, fullName string) error {
 			return err
 		}
 
-		fullName = fmt.Sprintf("%s/%s", inputPath, fullName)
+		fullName = filepath.Join(inputPath, fullName)
 		if _, err := os.Stat(fullName); err != nil {
 			return err
 		}
