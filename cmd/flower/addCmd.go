@@ -20,7 +20,7 @@ const GITHUB_PKG = "github.com"
 
 var addCmd = &cobra.Command{
 	Use:     "add",
-	Aliases: []string{"i", "add", "get", "fetch"},
+	Aliases: []string{"a", "install", "get", "fetch"},
 	Short:   "Add a plugin",
 	Long:    "Add a plugin from a git repository or local file",
 	Example: `flower add FlowerTeam.LimitBreaker`,
