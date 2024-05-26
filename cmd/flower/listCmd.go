@@ -63,5 +63,8 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 			"UpdatedAt":   types.MustParseTime(cacheRecord.UpdatedAt).Local().Format(time.RFC822),
 		}
 	}
-	listOutputTemplate.Execute(os.Stdout, data)
+
+	if err := listOutputTemplate.Execute(os.Stdout, data); err != nil {
+		log.Error("Failed to execute template (can't print?)", "error", err)
+	}
 }
