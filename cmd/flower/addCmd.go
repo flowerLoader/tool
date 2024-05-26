@@ -14,6 +14,9 @@ import (
 	"github.com/flowerLoader/tool/pkg/db/types"
 )
 
+const GITHUB_URL = "https://github.com"
+const GITHUB_PKG = "github.com"
+
 var addCmd = &cobra.Command{
 	Use:     "add",
 	Aliases: []string{"i", "add", "get", "fetch"},
@@ -62,7 +65,7 @@ func onAddCommandRun(cmd *cobra.Command, args []string) {
 
 	setupProgress()
 
-	if strings.HasPrefix(fullName, "github.com/") {
+	if strings.HasPrefix(fullName, GITHUB_PKG) {
 		if err := installPluginGithub(cmd.Context(), inputPath, fullName); err != nil {
 			log.Error("Failed to install GitHub Plugin", "error", err)
 		}

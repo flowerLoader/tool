@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/url"
 	"strings"
 )
@@ -18,18 +19,18 @@ func parsePluginName(name string) string {
 	parts := strings.Split(name, "/")
 	if len(parts) == 1 && !strings.Contains(name, "\\") {
 		// template -> github.com/flowerLoader/template
-		return "github.com/flowerLoader/" + name
+		return fmt.Sprintf("%s/flowerLoader/%s", GITHUB_PKG, name)
 	}
 
 	if parts[0] != "local" && len(parts) == 2 {
 		// flowerLoader/tool
 		// -> github.com/flowerLoader/tool
-		return "github.com/" + name
+		return fmt.Sprintf("%s/%s", GITHUB_PKG, name)
 	}
 
 	// github.com/flowerLoader/tool
 	// -> github.com/flowerLoader/tool
-	if parts[0] == "github.com" && len(parts) == 3 {
+	if parts[0] == GITHUB_PKG && len(parts) == 3 {
 		return name
 	}
 
