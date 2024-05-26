@@ -67,6 +67,28 @@ func TestPluginRegistry(t *testing.T) {
 				actualRecord, err := db.Plugins.Get(installRecord.ID)
 				convey.So(err, convey.ShouldBeNil)
 				convey.So(actualRecord, convey.ShouldResemble, installRecord)
+
+				convey.Convey("And when plugins are listed", func() {
+					records, err := db.Plugins.List()
+					convey.So(err, convey.ShouldBeNil)
+					convey.So(records, convey.ShouldHaveLength, 1)
+					convey.So(records[0], convey.ShouldResemble, installRecord)
+				})
+
+				convey.Convey("And when the plugin is removed", func() {
+					err = db.Plugins.Remove(installRecord.ID)
+					convey.So(err, convey.ShouldBeNil)
+
+					actualRecord, err := db.Plugins.Get(installRecord.ID)
+					convey.So(err, convey.ShouldBeNil)
+					convey.So(actualRecord, convey.ShouldBeNil)
+
+					convey.Convey("And when plugins are listed", func() {
+						records, err := db.Plugins.List()
+						convey.So(err, convey.ShouldBeNil)
+						convey.So(records, convey.ShouldBeEmpty)
+					})
+				})
 			})
 		})
 	})
