@@ -23,7 +23,16 @@ func init() {
 }
 
 func onInfoCommandRun(cmd *cobra.Command, args []string) {
-	query := strings.Join(args, " ")
+	queryArgs := make([]string, len(args))
+	for i, arg := range args {
+		if parsed := parsePluginName(arg); parsed != "" {
+			queryArgs[i] = parsed
+		} else {
+			queryArgs[i] = arg
+		}
+	}
+
+	query := strings.Join(queryArgs, " ")
 	cacheRecord, err := DB.Plugins.CacheGet(query)
 	if err != nil {
 		log.Error("Failed to get plugin info from cache", "error", err)
@@ -31,8 +40,26 @@ func onInfoCommandRun(cmd *cobra.Command, args []string) {
 	}
 
 	if cacheRecord == nil {
-		fmt.Printf("flower > Try running 'flower search %s' to find it\n", query)
-		return
+		query = args[0]
+
+		log.Warn("Plugin not found in cache. Attempting to search...", "query", query)
+		if err := searchPlugin(cmd.Context(), query); err != nil {
+			log.Error("Failed to search for plugin", "error", err)
+			return
+		}
+
+		cacheRecord, err = DB.Plugins.CacheGet(parsePluginName(query))
+		if err != nil {
+			log.Error("Failed to get plugin info from cache", "error", err)
+			return
+		}
+
+		if cacheRecord == nil {
+			log.Error("Plugin not found in cache or search results")
+			return
+		}
+
+		fmt.Printf("\n\n") // Add some space between search results and plugin info
 	}
 
 	fmt.Printf(strings.TrimSpace(`
