@@ -1,7 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"os"
+	"strings"
+	"text/template"
 	"time"
 
 	log "github.com/AlbinoGeek/logxi/v1"
@@ -9,6 +11,13 @@ import (
 
 	"github.com/flowerLoader/tool/pkg/db/types"
 )
+
+var listOutputTemplate = template.Must(template.New("pluginList").Parse(strings.TrimSpace(`
+| Name                 | Version | Author               | Installed At             | Last Updated             |
+|----------------------|---------|----------------------|--------------------------|--------------------------|{{range .}}
+| {{.Name | printf "%-20s"}} | {{.Version | printf "%-7s"}} | {{.Author | printf "%-20s"}} | {{.InstalledAt | printf "%-24s"}} | {{.UpdatedAt | printf "%-24s"}} |{{end}}
+
+Total Installed: {{len .}}`)))
 
 var listCmd = &cobra.Command{
 	Use:     "list",
@@ -37,29 +46,22 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 	}
 	log.Info("Installed Plugins", "count", len(records))
 
-	fmt.Print("| Name                 | Version | Author               | Installed At             | Last Updated             |\n|----------------------|---------|----------------------|--------------------------|--------------------------|\n")
-	for _, installRecord := range records {
-		cacheRecord, err := DB.Plugins.CacheGet(installRecord.ID)
+	data := make(map[string]interface{})
+	for _, record := range records {
+		cacheRecord, err := DB.Plugins.CacheGet(record.ID)
 		if err != nil || cacheRecord == nil {
-			log.Error("Failed to get plugin info from cache", "id", installRecord.ID, "error", err)
+			log.Error("Failed to get plugin info from cache", "id", record.ID, "error", err)
 			continue
 		}
 
-		name := cacheRecord.Name
-		if len(name) > 20 {
-			name = name[:17] + "..."
+		// Add the cache record to the data map
+		data[record.ID] = map[string]interface{}{
+			"Name":        cacheRecord.Name,
+			"Version":     cacheRecord.Version,
+			"Author":      cacheRecord.Author,
+			"InstalledAt": types.MustParseTime(record.InstalledAt).Local().Format(time.RFC822),
+			"UpdatedAt":   types.MustParseTime(cacheRecord.UpdatedAt).Local().Format(time.RFC822),
 		}
-
-		author := cacheRecord.Author
-		if len(author) > 20 {
-			author = author[:17] + "..."
-		}
-
-		fmt.Printf("| %-20s | %-7s | %-20s | %-24s | %-24s |\n",
-			name,
-			cacheRecord.Version,
-			author,
-			types.MustParseTime(installRecord.InstalledAt).Local().Format(time.RFC822),
-			types.MustParseTime(cacheRecord.UpdatedAt).Local().Format(time.RFC822))
 	}
+	listOutputTemplate.Execute(os.Stdout, data)
 }
