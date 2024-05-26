@@ -53,7 +53,7 @@ package main
 // 	url := parts[0]
 // 	if strings.HasPrefix(url, GITHUB_PKG) {
 // 		parts = strings.Split(url, "/")
-// 		url = fmt.Sprintf("%s/%s.git", "https://github.com", strings.Join(parts[1:], "/"))
+// 		url = fmt.Sprintf("%s/%s.git", GITHUB_URL, strings.Join(parts[1:], "/"))
 // 		log.Debug("Resolved as GitHub Repository", "url", url, "args", args)
 // 	} else {
 // 		log.Info("Unsupported Repository Type", "url", url, "args", args)

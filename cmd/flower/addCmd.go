@@ -84,7 +84,7 @@ func installPluginGithub(ctx context.Context, pluginRoot, fullName string) error
 	log.Debug("Installing GitHub Plugin", "name", fullName)
 	t := time.Now()
 	clonePath := filepath.Join(pluginRoot, fullName)
-	if err := cloneGitPlugin(ctx, "https://github.com", clonePath, fullName); err != nil {
+	if err := cloneGitPlugin(ctx, GITHUB_URL, clonePath, fullName); err != nil {
 		return err
 	}
 	done()

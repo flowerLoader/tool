@@ -101,7 +101,7 @@ func updatePluginGithub(ctx context.Context, inputPath string, plugin *types.Plu
 	log.Debug("Updating GitHub Plugin", "name", plugin.ID)
 	t := time.Now()
 	fullPath := fmt.Sprintf("%s/%s", inputPath, plugin.ID)
-	if err := cloneGitPlugin(ctx, "https://github.com", fullPath, plugin.ID); err != nil {
+	if err := cloneGitPlugin(ctx, GITHUB_URL, fullPath, plugin.ID); err != nil {
 		return err
 	}
 	done()
