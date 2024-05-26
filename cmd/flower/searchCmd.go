@@ -61,7 +61,7 @@ func searchPlugin(ctx context.Context, query string) error {
 	records := make([]*types.PluginCacheRecord, 0)
 	for _, repo := range repos.Repositories {
 		cacheRecord, err := DB.Plugins.CacheGet(
-			fmt.Sprintf("github.com/%s", *repo.FullName))
+			fmt.Sprintf("%s/%s", GITHUB_PKG, *repo.FullName))
 		if err != nil || cacheRecord == nil {
 			_, done = newTracker(fmt.Sprintf("Analyzing %s", *repo.FullName))
 
@@ -83,7 +83,7 @@ func searchPlugin(ctx context.Context, query string) error {
 			}
 
 			cacheRecord = &types.PluginCacheRecord{
-				ID:         fmt.Sprintf("github.com/%s", *repo.FullName),
+				ID:         fmt.Sprintf("%s/%s", GITHUB_PKG, *repo.FullName),
 				Version:    analysis.Version,
 				Name:       analysis.Name,
 				Author:     analysis.Author,
