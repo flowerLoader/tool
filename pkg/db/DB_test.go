@@ -3,7 +3,7 @@ package db
 import (
 	"testing"
 
-	"github.com/smartystreets/goconvey/convey"
+	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/flowerLoader/tool/pkg/db/types"
 )
@@ -13,15 +13,15 @@ func now() string {
 }
 
 func TestPluginRegistry(t *testing.T) {
-	convey.Convey("Given a new database", t, func() {
+	Convey("Given a new database", t, func() {
 		db, err := NewDB(":memory:")
-		convey.So(err, convey.ShouldBeNil)
+		So(err, ShouldBeNil)
 		defer db.Close()
 
 		err = db.Migrate()
-		convey.So(err, convey.ShouldBeNil)
+		So(err, ShouldBeNil)
 
-		convey.Convey("When a plugin is upserted and retrieved", func() {
+		Convey("When a plugin is upserted and retrieved", func() {
 			plugin := &types.PluginCacheRecord{
 				ID:         "test/repo/tag#commit",
 				UpdatedAt:  now(),
@@ -37,23 +37,23 @@ func TestPluginRegistry(t *testing.T) {
 			}
 
 			err = db.Plugins.CachePut(plugin)
-			convey.So(err, convey.ShouldBeNil)
+			So(err, ShouldBeNil)
 
 			actualPlugin, err := db.Plugins.CacheGet(plugin.ID)
-			convey.So(err, convey.ShouldBeNil)
-			convey.So(actualPlugin, convey.ShouldResemble, plugin)
+			So(err, ShouldBeNil)
+			So(actualPlugin, ShouldResemble, plugin)
 
-			convey.Convey("And when the plugin is updated", func() {
+			Convey("And when the plugin is updated", func() {
 				plugin.Name = "Updated Plugin"
 				err = db.Plugins.CachePut(plugin)
-				convey.So(err, convey.ShouldBeNil)
+				So(err, ShouldBeNil)
 
 				actualPlugin, err := db.Plugins.CacheGet(plugin.ID)
-				convey.So(err, convey.ShouldBeNil)
-				convey.So(actualPlugin.Name, convey.ShouldEqual, "Updated Plugin")
+				So(err, ShouldBeNil)
+				So(actualPlugin.Name, ShouldEqual, "Updated Plugin")
 			})
 
-			convey.Convey("And when a plugin is added", func() {
+			Convey("And when a plugin is added", func() {
 				installRecord := &types.PluginInstallRecord{
 					ID:          plugin.ID,
 					Enabled:     true,
@@ -62,31 +62,31 @@ func TestPluginRegistry(t *testing.T) {
 				}
 
 				err = db.Plugins.Add(installRecord)
-				convey.So(err, convey.ShouldBeNil)
+				So(err, ShouldBeNil)
 
 				actualRecord, err := db.Plugins.Get(installRecord.ID)
-				convey.So(err, convey.ShouldBeNil)
-				convey.So(actualRecord, convey.ShouldResemble, installRecord)
+				So(err, ShouldBeNil)
+				So(actualRecord, ShouldResemble, installRecord)
 
-				convey.Convey("And when plugins are listed", func() {
+				Convey("And when plugins are listed", func() {
 					records, err := db.Plugins.List()
-					convey.So(err, convey.ShouldBeNil)
-					convey.So(records, convey.ShouldHaveLength, 1)
-					convey.So(records[0], convey.ShouldResemble, installRecord)
+					So(err, ShouldBeNil)
+					So(records, ShouldHaveLength, 1)
+					So(records[0], ShouldResemble, installRecord)
 				})
 
-				convey.Convey("And when the plugin is removed", func() {
+				Convey("And when the plugin is removed", func() {
 					err = db.Plugins.Remove(installRecord.ID)
-					convey.So(err, convey.ShouldBeNil)
+					So(err, ShouldBeNil)
 
 					actualRecord, err := db.Plugins.Get(installRecord.ID)
-					convey.So(err, convey.ShouldBeNil)
-					convey.So(actualRecord, convey.ShouldBeNil)
+					So(err, ShouldBeNil)
+					So(actualRecord, ShouldBeNil)
 
-					convey.Convey("And when plugins are listed", func() {
+					Convey("And when plugins are listed", func() {
 						records, err := db.Plugins.List()
-						convey.So(err, convey.ShouldBeNil)
-						convey.So(records, convey.ShouldBeEmpty)
+						So(err, ShouldBeNil)
+						So(records, ShouldBeEmpty)
 					})
 				})
 			})
