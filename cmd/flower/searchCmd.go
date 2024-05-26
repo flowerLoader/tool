@@ -55,6 +55,7 @@ func searchPlugin(ctx context.Context, query string) error {
 		fmt.Printf("flower > No results found for %s\n", query)
 		return nil
 	}
+	log.Debug("search results", "total", repos.GetTotal())
 
 	// Update our cache
 	records := make([]*types.PluginCacheRecord, 0)

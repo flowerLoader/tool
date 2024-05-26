@@ -50,11 +50,12 @@ func onCleanCmdRun(cmd *cobra.Command, args []string) {
 		log.Error("failed to query database path", "error", err)
 		return
 	}
+	log.Warn("Resetting plugin database", "path", dbPath)
 
 	if err := os.Remove(dbPath); err != nil {
 		log.Error("failed to delete plugin database", "error", err)
 		return
 	}
 
-	log.Info("Plugin database reset", "old path", dbPath)
+	log.Warn("Plugin database reset")
 }

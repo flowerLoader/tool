@@ -35,6 +35,7 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 		log.Info("No plugins installed")
 		return
 	}
+	log.Info("Installed Plugins", "count", len(records))
 
 	fmt.Print("| Name                 | Version | Author               | Installed At             | Last Updated             |\n|----------------------|---------|----------------------|--------------------------|--------------------------|\n")
 	for _, installRecord := range records {
