@@ -18,6 +18,9 @@ var cleanCmd = &cobra.Command{
 }
 
 func init() {
+	cleanCmd.PersistentFlags().BoolP("force", "f", false,
+		"Force the reset without prompting for confirmation")
+
 	rootCmd.AddCommand(cleanCmd)
 }
 
@@ -34,8 +37,16 @@ func onCleanCmdRun(cmd *cobra.Command, args []string) {
 		"enabled", stat.Counts.Enabled)
 
 	// Prompt the user to confirm the reset
-	if !promptConfirm("Are you sure you want to reset the plugin database?") {
+	forced, err := cmd.Flags().GetBool("force")
+	if err != nil {
+		log.Error("failed to query force flag", "error", err)
 		return
+	}
+
+	if !forced {
+		if !promptConfirm("Are you sure you want to reset the plugin database?") {
+			return
+		}
 	}
 
 	// Close the database connection
