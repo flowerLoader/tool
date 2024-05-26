@@ -35,6 +35,11 @@ func onUpdateCommandRun(cmd *cobra.Command, args []string) {
 	}
 
 	name := args[0]
+	if strings.ToLower(name) == "all" {
+		updateAllPlugins(cmd, inputPath)
+		return
+	}
+
 	fullName := parsePluginName(name)
 	log.Debug("Resolved Plugin Name", "input", name, "resolved", fullName)
 
@@ -63,6 +68,31 @@ func onUpdateCommandRun(cmd *cobra.Command, args []string) {
 	if err := updatePluginLocal(inputPath, plugin); err != nil {
 		log.Error("Failed to update Local Plugin", "error", err)
 		return
+	}
+}
+
+func updateAllPlugins(cmd *cobra.Command, inputPath string) {
+	plugins, err := DB.Plugins.List()
+	if err != nil {
+		log.Error("Failed to list installed plugins", "error", err)
+		return
+	}
+
+	setupProgress()
+
+	for _, plugin := range plugins {
+		fullName := plugin.ID
+		log.Debug("Updating Plugin", "name", fullName)
+
+		if strings.HasPrefix(fullName, GITHUB_PKG) {
+			if err := updatePluginGithub(cmd.Context(), inputPath, plugin); err != nil {
+				log.Error("Failed to update GitHub Plugin", "error", err)
+			}
+		} else {
+			if err := updatePluginLocal(inputPath, plugin); err != nil {
+				log.Error("Failed to update Local Plugin", "error", err)
+			}
+		}
 	}
 }
 
