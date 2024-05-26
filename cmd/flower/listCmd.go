@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"regexp"
 	"strings"
 	"text/template"
 	"time"
@@ -30,10 +31,17 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
+	listCmd.PersistentFlags().String("author", "", "Only show plugins by this author (Regular Expression Match, such as 'flower.*')")
 	rootCmd.AddCommand(listCmd)
 }
 
 func onListCommandRun(cmd *cobra.Command, args []string) {
+	authorFilter, err := cmd.Flags().GetString("author")
+	if err != nil {
+		log.Error("Failed to get author flag", "error", err)
+		return
+	}
+
 	records, err := DB.Plugins.List()
 	if err != nil {
 		log.Error("Failed to list plugins", "error", err)
@@ -46,7 +54,22 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 	}
 	log.Info("Installed Plugins", "count", len(records))
 
-	data := make(map[string]interface{})
+	toRender := make(map[string]interface{})
+
+	filters := make([]func(*types.PluginCacheRecord) bool, 0)
+	if authorFilter != "" {
+		pattern, err := regexp.Compile(authorFilter)
+		if err != nil {
+			log.Error("Failed to compile author filter", "error", err)
+			return
+		}
+
+		filters = append(filters, func(record *types.PluginCacheRecord) bool {
+			return pattern.MatchString(record.Author)
+		})
+	}
+
+outer:
 	for _, record := range records {
 		cacheRecord, err := DB.Plugins.CacheGet(record.ID)
 		if err != nil || cacheRecord == nil {
@@ -54,17 +77,33 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 			continue
 		}
 
+		// Apply filters
+		if len(filters) > 0 {
+			for _, filter := range filters {
+				if !filter(cacheRecord) {
+					continue outer
+				}
+			}
+		}
+
 		// Add the cache record to the data map
-		data[record.ID] = map[string]interface{}{
+		toRender[record.ID] = map[string]interface{}{
 			"Name":        cacheRecord.Name,
 			"Version":     cacheRecord.Version,
 			"Author":      cacheRecord.Author,
 			"InstalledAt": types.MustParseTime(record.InstalledAt).Local().Format(time.RFC822),
 			"UpdatedAt":   types.MustParseTime(cacheRecord.UpdatedAt).Local().Format(time.RFC822),
 		}
+
+		if len(toRender) == 0 {
+			log.Warn("No plugins matched the filter",
+				"author", authorFilter,
+				"ignored", len(records))
+			return
+		}
 	}
 
-	if err := listOutputTemplate.Execute(os.Stdout, data); err != nil {
+	if err := listOutputTemplate.Execute(os.Stdout, toRender); err != nil {
 		log.Error("Failed to execute template (can't print?)", "error", err)
 	}
 }
