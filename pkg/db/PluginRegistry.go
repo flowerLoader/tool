@@ -13,6 +13,7 @@ type IPluginRegistry interface {
 	Get(id string) (*types.PluginInstallRecord, error)
 	List() ([]*types.PluginInstallRecord, error)
 	Remove(id string) error
+	Update(record *types.PluginInstallRecord) error
 }
 
 // Ensure PluginRegistry implements IPluginRegistry
@@ -33,6 +34,7 @@ const INSERT_PLUGIN = `INSERT INTO plugin_install (
 	id, enabled, installed, updated
 ) VALUES (?, ?, ?, ?)`
 const DELETE_PLUGIN = `DELETE FROM plugin_install WHERE id = ?`
+const UPDATE_PLUGIN = `UPDATE plugin_install SET enabled = ?, updated = ? WHERE id = ?`
 
 func (r *PluginRegistry) CacheGet(id string) (*types.PluginCacheRecord, error) {
 	r.log.Debug("searching for plugin", "id", id)
@@ -130,5 +132,18 @@ func (r *PluginRegistry) Remove(id string) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(id)
+	return err
+}
+
+func (r *PluginRegistry) Update(record *types.PluginInstallRecord) error {
+	r.log.Debug("updating plugin", "id", record.ID)
+
+	stmt, err := r.db.conn.Prepare(UPDATE_PLUGIN)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(record.Enabled, record.UpdatedAt, record.ID)
 	return err
 }
