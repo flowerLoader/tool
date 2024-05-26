@@ -59,15 +59,21 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		cmd.Root().PersistentFlags().Set("game-path", gameInstallPath)
-		cmd.Root().PersistentFlags().Set("db-path", dbPath)
+		if err := cmd.Root().PersistentFlags().Set("game-path", gameInstallPath); err != nil {
+			return err
+		}
+
+		if err := cmd.Root().PersistentFlags().Set("db-path", dbPath); err != nil {
+			return err
+		}
+
 		log.Info("Using Flags (post resolution)",
 			"game-path", gameInstallPath,
 			"db-path", dbPath)
 
-		if err := initFlowerLoader(gameInstallPath); err != nil {
-			return err
-		}
+		// if err := initFlowerLoader(gameInstallPath); err != nil {
+		// 	return err
+		// }
 
 		return nil
 	},
