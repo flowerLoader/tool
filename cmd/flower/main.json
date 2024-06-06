@@ -30,8 +30,8 @@
       },
       "subsystem": {
         "id": "steam",
-        "appid": 2761610,
-        "appname": "isekainosouzousha"
+        "app_id": 2761610,
+        "app_name": "isekainosouzousha"
       }
     }
   ],

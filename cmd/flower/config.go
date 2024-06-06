@@ -22,9 +22,9 @@ type GameConfig struct {
 		OS   []string          `json:"os"`
 	}
 	Subsystem struct {
-		ID      string
-		Appid   int
-		Appname string
+		ID      string `json:"id"`
+		AppID   int    `json:"app_id"`
+		AppName string `json:"app_name"`
 	}
 }
 
