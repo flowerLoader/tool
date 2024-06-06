@@ -60,7 +60,7 @@ func searchPlugin(ctx context.Context, query string) error {
 	// Update our cache
 	records := make([]*types.PluginCacheRecord, 0)
 	for _, repo := range repos.Repositories {
-		cacheRecord, err := DB.Plugins.CacheGet(
+		cacheRecord, err := App.DB.Plugins.CacheGet(
 			fmt.Sprintf("%s/%s", GITHUB_PKG, *repo.FullName))
 		if err != nil || cacheRecord == nil {
 			_, done = newTracker(fmt.Sprintf("Analyzing %s", *repo.FullName))
@@ -102,7 +102,7 @@ func searchPlugin(ctx context.Context, query string) error {
 		cacheRecord.Summary = *repo.Description
 		cacheRecord.Tags = strings.Join(repo.Topics, ",")
 
-		if err := DB.Plugins.CachePut(cacheRecord); err != nil {
+		if err := App.DB.Plugins.CachePut(cacheRecord); err != nil {
 			return err
 		}
 

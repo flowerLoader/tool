@@ -44,7 +44,7 @@ func onUpdateCommandRun(cmd *cobra.Command, args []string) {
 	log.Debug("Resolved Plugin Name", "input", name, "resolved", fullName)
 
 	// Check if the plugin is installed
-	plugin, err := DB.Plugins.Get(fullName)
+	plugin, err := App.DB.Plugins.Get(fullName)
 	if err != nil {
 		log.Error("Failed to query plugin database", "error", err)
 		return
@@ -72,7 +72,7 @@ func onUpdateCommandRun(cmd *cobra.Command, args []string) {
 }
 
 func updateAllPlugins(cmd *cobra.Command, inputPath string) {
-	plugins, err := DB.Plugins.List()
+	plugins, err := App.DB.Plugins.List()
 	if err != nil {
 		log.Error("Failed to list installed plugins", "error", err)
 		return
@@ -108,7 +108,7 @@ func updatePluginGithub(ctx context.Context, inputPath string, plugin *types.Plu
 	log.Debug("Updating GitHub Plugin", "name", plugin.ID, "took", time.Since(t).String())
 
 	// Update the plugin in the database
-	return DB.Plugins.Update(&types.PluginInstallRecord{
+	return App.DB.Plugins.Update(&types.PluginInstallRecord{
 		ID:          plugin.ID,
 		Enabled:     true,
 		InstalledAt: plugin.InstalledAt,
@@ -126,7 +126,7 @@ func updatePluginLocal(inputPath string, plugin *types.PluginInstallRecord) erro
 	}
 
 	// Update the plugin in the database
-	return DB.Plugins.Update(&types.PluginInstallRecord{
+	return App.DB.Plugins.Update(&types.PluginInstallRecord{
 		ID:          plugin.ID,
 		Enabled:     true,
 		InstalledAt: plugin.InstalledAt,

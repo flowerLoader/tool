@@ -27,7 +27,7 @@ func onEnableCommandRun(cmd *cobra.Command, args []string) {
 	log.Debug("Resolved Plugin Name", "input", name, "resolved", fullName)
 
 	// Check if the plugin is installed
-	plugin, err := DB.Plugins.Get(fullName)
+	plugin, err := App.DB.Plugins.Get(fullName)
 	if err != nil {
 		log.Error("Failed to query plugin database", "error", err)
 		return
@@ -41,7 +41,7 @@ func onEnableCommandRun(cmd *cobra.Command, args []string) {
 
 	// Mark the plugin as enabled
 	plugin.Enabled = true
-	if err := DB.Plugins.Update(plugin); err != nil {
+	if err := App.DB.Plugins.Update(plugin); err != nil {
 		log.Error("Failed to update plugin status in database", "error", err)
 		return
 	}

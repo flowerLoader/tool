@@ -28,7 +28,7 @@ func onRemoveCommandRun(cmd *cobra.Command, args []string) {
 	log.Debug("Resolved Plugin Name", "input", name, "resolved", fullName)
 
 	// Check if the plugin is installed
-	plugin, err := DB.Plugins.Get(fullName)
+	plugin, err := App.DB.Plugins.Get(fullName)
 	if err != nil {
 		log.Error("Failed to query plugin database", "error", err)
 		return
@@ -54,7 +54,7 @@ func onRemoveCommandRun(cmd *cobra.Command, args []string) {
 	}
 
 	// Remove the plugin from the database
-	if err := DB.Plugins.Remove(fullName); err != nil {
+	if err := App.DB.Plugins.Remove(fullName); err != nil {
 		log.Error("Failed to remove plugin from database", "error", err)
 		return
 	}

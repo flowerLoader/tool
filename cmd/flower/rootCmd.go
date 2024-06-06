@@ -9,7 +9,12 @@ import (
 	"github.com/flowerLoader/tool/pkg/db"
 )
 
-var DB *db.DB
+type Application struct {
+	Config *Config
+	DB     *db.DB
+}
+
+var App Application
 
 func init() {
 	rootCmd.PersistentFlags().String("db-path", "",
@@ -51,11 +56,11 @@ var rootCmd = &cobra.Command{
 		if dbPath == "" {
 			dbPath = filepath.Join(gameInstallPath, "flower.db")
 		}
-		if DB, err = db.NewDB(dbPath); err != nil {
+		if App.DB, err = db.NewDB(dbPath); err != nil {
 			return err
 		}
 
-		if err := DB.Migrate(); err != nil {
+		if err := App.DB.Migrate(); err != nil {
 			return err
 		}
 
@@ -71,8 +76,8 @@ var rootCmd = &cobra.Command{
 			"game-path", gameInstallPath,
 			"db-path", dbPath)
 
-		config, err := NewConfig()
-		if err != nil || len(config.Games) == 0 {
+		App.Config, err = NewConfig()
+		if err != nil || len(App.Config.Games) == 0 {
 			panic("fatal: no games found in config (check main.json and rebuild)")
 		}
 

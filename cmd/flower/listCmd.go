@@ -42,7 +42,7 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	records, err := DB.Plugins.List()
+	records, err := App.DB.Plugins.List()
 	if err != nil {
 		log.Error("Failed to list plugins", "error", err)
 		return
@@ -71,7 +71,7 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 
 outer:
 	for _, record := range records {
-		cacheRecord, err := DB.Plugins.CacheGet(record.ID)
+		cacheRecord, err := App.DB.Plugins.CacheGet(record.ID)
 		if err != nil || cacheRecord == nil {
 			log.Error("Failed to get plugin info from cache", "id", record.ID, "error", err)
 			continue

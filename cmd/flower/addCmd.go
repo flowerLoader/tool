@@ -43,7 +43,7 @@ func onAddCommandRun(cmd *cobra.Command, args []string) {
 	log.Debug("Resolved Plugin Name", "input", name, "resolved", fullName)
 
 	// Check if the plugin is already installed
-	plugin, err := DB.Plugins.Get(fullName)
+	plugin, err := App.DB.Plugins.Get(fullName)
 	if err != nil {
 		log.Error("Failed to query plugin database", "error", err)
 		return
@@ -91,7 +91,7 @@ func installPluginGithub(ctx context.Context, pluginRoot, fullName string) error
 	log.Debug("Installing GitHub Plugin", "name", fullName, "took", time.Since(t).String())
 
 	// Add the plugin to the database
-	return DB.Plugins.Add(&types.PluginInstallRecord{
+	return App.DB.Plugins.Add(&types.PluginInstallRecord{
 		ID:          fullName,
 		Enabled:     true,
 		InstalledAt: types.FormatTime(time.Now()),
@@ -117,7 +117,7 @@ func installPluginLocal(cmd *cobra.Command, fullName string) error {
 	}
 
 	// Add the plugin to the database
-	return DB.Plugins.Add(&types.PluginInstallRecord{
+	return App.DB.Plugins.Add(&types.PluginInstallRecord{
 		ID:          fullName,
 		Enabled:     true,
 		InstalledAt: types.FormatTime(time.Now()),

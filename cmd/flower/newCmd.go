@@ -26,7 +26,7 @@ func onNewPluginRun(cmd *cobra.Command, args []string) {
 	log.Debug("Resolved Plugin Name", "input", name, "resolved", fullName)
 
 	// Check if the plugin is already installed
-	plugin, err := DB.Plugins.Get(fullName)
+	plugin, err := App.DB.Plugins.Get(fullName)
 	if err != nil {
 		log.Error("failed to query local plugin database", "name", fullName, "error", err)
 		return

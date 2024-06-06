@@ -25,7 +25,7 @@ func init() {
 }
 
 func onCleanCmdRun(cmd *cobra.Command, args []string) {
-	stat, err := DB.Stat()
+	stat, err := App.DB.Stat()
 	if err != nil {
 		log.Error("failed to query plugin database stats", "error", err)
 		return
@@ -50,7 +50,7 @@ func onCleanCmdRun(cmd *cobra.Command, args []string) {
 	}
 
 	// Close the database connection
-	if err := DB.Close(); err != nil {
+	if err := App.DB.Close(); err != nil {
 		log.Error("failed to close the plugin database", "error", err)
 		return
 	}
