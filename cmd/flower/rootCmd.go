@@ -71,9 +71,14 @@ var rootCmd = &cobra.Command{
 			"game-path", gameInstallPath,
 			"db-path", dbPath)
 
-		// if err := initFlowerLoader(gameInstallPath); err != nil {
-		// 	return err
-		// }
+		config, err := NewConfig()
+		if err != nil || len(config.Games) == 0 {
+			panic("fatal: no games found in config (check main.json and rebuild)")
+		}
+
+		if err := initFlowerLoader(config, gameInstallPath); err != nil {
+			return err
+		}
 
 		return nil
 	},
