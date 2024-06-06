@@ -2,6 +2,8 @@
   "eslint.enable": false,
   "cSpell.words": [
     "andygrunwald",
+    "APPDATA",
+    "APPNAME",
     "APPVERSION",
     "bubbletea",
     "charmbracelet",
