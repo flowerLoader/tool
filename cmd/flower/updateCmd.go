@@ -28,15 +28,16 @@ func init() {
 }
 
 func onUpdateCommandRun(cmd *cobra.Command, args []string) {
-	inputPath, err := cmd.Flags().GetString("input-path")
+	// TODO: This should be via App.Config instead of a flag.
+	sourcePath, err := cmd.Flags().GetString("source-path")
 	if err != nil {
-		log.Error("Failed to get input-path flag", "error", err)
+		log.Error("Failed to get source-path flag", "error", err)
 		return
 	}
 
 	name := args[0]
 	if strings.ToLower(name) == "all" {
-		updateAllPlugins(cmd, inputPath)
+		updateAllPlugins(cmd, sourcePath)
 		return
 	}
 
@@ -59,19 +60,19 @@ func onUpdateCommandRun(cmd *cobra.Command, args []string) {
 	setupProgress()
 
 	if strings.HasPrefix(fullName, GITHUB_PKG) {
-		if err := updatePluginGithub(cmd.Context(), inputPath, plugin); err != nil {
+		if err := updatePluginGithub(cmd.Context(), sourcePath, plugin); err != nil {
 			log.Error("Failed to update GitHub Plugin", "error", err)
 		}
 		return
 	}
 
-	if err := updatePluginLocal(inputPath, plugin); err != nil {
+	if err := updatePluginLocal(sourcePath, plugin); err != nil {
 		log.Error("Failed to update Local Plugin", "error", err)
 		return
 	}
 }
 
-func updateAllPlugins(cmd *cobra.Command, inputPath string) {
+func updateAllPlugins(cmd *cobra.Command, sourcePath string) {
 	plugins, err := App.DB.Plugins.List()
 	if err != nil {
 		log.Error("Failed to list installed plugins", "error", err)
@@ -85,22 +86,22 @@ func updateAllPlugins(cmd *cobra.Command, inputPath string) {
 		log.Debug("Updating Plugin", "name", fullName)
 
 		if strings.HasPrefix(fullName, GITHUB_PKG) {
-			if err := updatePluginGithub(cmd.Context(), inputPath, plugin); err != nil {
+			if err := updatePluginGithub(cmd.Context(), sourcePath, plugin); err != nil {
 				log.Error("Failed to update GitHub Plugin", "error", err)
 			}
 		} else {
-			if err := updatePluginLocal(inputPath, plugin); err != nil {
+			if err := updatePluginLocal(sourcePath, plugin); err != nil {
 				log.Error("Failed to update Local Plugin", "error", err)
 			}
 		}
 	}
 }
 
-func updatePluginGithub(ctx context.Context, inputPath string, plugin *types.PluginInstallRecord) error {
+func updatePluginGithub(ctx context.Context, sourcePath string, plugin *types.PluginInstallRecord) error {
 	_, done := newTracker("Updating " + plugin.ID)
 	log.Debug("Updating GitHub Plugin", "name", plugin.ID)
 	t := time.Now()
-	fullPath := fmt.Sprintf("%s/%s", inputPath, plugin.ID)
+	fullPath := fmt.Sprintf("%s/%s", sourcePath, plugin.ID)
 	if err := cloneGitPlugin(ctx, GITHUB_URL, fullPath, plugin.ID); err != nil {
 		return err
 	}
@@ -116,11 +117,11 @@ func updatePluginGithub(ctx context.Context, inputPath string, plugin *types.Plu
 	})
 }
 
-func updatePluginLocal(inputPath string, plugin *types.PluginInstallRecord) error {
+func updatePluginLocal(sourcePath string, plugin *types.PluginInstallRecord) error {
 	log.Debug("Updating Local Plugin", "name", plugin.ID)
 
 	// Check if the plugin exists
-	fullPath := fmt.Sprintf("%s/%s", inputPath, plugin.ID)
+	fullPath := fmt.Sprintf("%s/%s", sourcePath, plugin.ID)
 	if _, err := os.Stat(fullPath); err != nil {
 		return err
 	}

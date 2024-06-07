@@ -17,14 +17,8 @@ type Application struct {
 var App Application
 
 func init() {
-	rootCmd.PersistentFlags().String("db-path", "",
-		"Path to the database file (defaults to game's installation directory)")
-	rootCmd.PersistentFlags().String("game-path", "",
-		"Path to the game's installation directory")
-	rootCmd.PersistentFlags().String("input-path", "dist/src",
-		"Path to local plugins to transpile")
-	rootCmd.PersistentFlags().String("output-path", "dist/obj",
-		"Path to store transpiled plugins")
+	rootCmd.PersistentFlags().String("game-path", "", "Path to the game's installation directory")
+	rootCmd.PersistentFlags().String("source-path", "dist/src", "Path to local plugin source code")
 	rootCmd.PersistentFlags().Bool("debug", false, "Scream and shout")
 }
 
@@ -54,13 +48,9 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		dbPath, err := cmd.Flags().GetString("db-path")
-		if err != nil {
-			return err
-		}
-		if dbPath == "" {
-			dbPath = filepath.Join(gameInstallPath, "flower.db")
-		}
+		// TODO: dbPath should be derived from App.Config.Environment[i] where
+		// TODO   i == id of resolved gameInstallPath, or new if not found
+		dbPath := filepath.Join(gameInstallPath, "flower.db")
 		if App.DB, err = db.NewDB(dbPath); err != nil {
 			return err
 		}

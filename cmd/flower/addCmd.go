@@ -58,16 +58,16 @@ func onAddCommandRun(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	inputPath, err := rootCmd.Flags().GetString("input-path")
+	sourcePath, err := rootCmd.Flags().GetString("source-path")
 	if err != nil {
-		log.Error("Failed to query input path", "error", err)
+		log.Error("Failed to query source-path", "error", err)
 		return
 	}
 
 	setupProgress()
 
 	if strings.HasPrefix(fullName, GITHUB_PKG) {
-		if err := installPluginGithub(cmd.Context(), inputPath, fullName); err != nil {
+		if err := installPluginGithub(cmd.Context(), sourcePath, fullName); err != nil {
 			log.Error("Failed to install GitHub Plugin", "error", err)
 		}
 		return
@@ -104,13 +104,13 @@ func installPluginLocal(cmd *cobra.Command, fullName string) error {
 
 	// Check if the plugin exists
 	if _, err := os.Stat(fullName); err != nil {
-		// expand using inputPath
-		inputPath, err := cmd.Flags().GetString("input-path")
+		// expand using sourcePath
+		sourcePath, err := cmd.Flags().GetString("source-path")
 		if err != nil {
 			return err
 		}
 
-		fullName = filepath.Join(inputPath, fullName)
+		fullName = filepath.Join(sourcePath, fullName)
 		if _, err := os.Stat(fullName); err != nil {
 			return err
 		}
