@@ -40,6 +40,11 @@ var rootCmd = &cobra.Command{
 			log.DefaultLog.SetLevel(log.LevelDebug)
 		}
 
+		App.Config, err = NewConfig()
+		if err != nil || len(App.Config.Games) == 0 {
+			panic("fatal: no games found in config (check main.json and rebuild) error: " + err.Error())
+		}
+
 		gameInstallPath, err := cmd.Flags().GetString("game-path")
 		if err != nil {
 			return err
@@ -75,15 +80,6 @@ var rootCmd = &cobra.Command{
 		log.Info("Using Flags (post resolution)",
 			"game-path", gameInstallPath,
 			"db-path", dbPath)
-
-		App.Config, err = NewConfig()
-		if err != nil || len(App.Config.Games) == 0 {
-			panic("fatal: no games found in config (check main.json and rebuild)")
-		}
-
-		if err := initFlowerLoader(config, gameInstallPath); err != nil {
-			return err
-		}
 
 		return nil
 	},
