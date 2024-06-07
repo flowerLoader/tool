@@ -55,7 +55,10 @@ func onCleanCmdRun(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	// TODO: Make a backup?
+
 	// Reset the plugin database
+	// TODO: This should be on App.Config not a flag
 	dbPath, err := cmd.Flags().GetString("db-path")
 	if err != nil {
 		log.Error("failed to query database path", "error", err)

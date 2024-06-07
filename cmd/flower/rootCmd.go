@@ -63,6 +63,7 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
+		// TODO: This should be stored on App.Config somewhere instead of a flag (see above)
 		if err := cmd.Root().PersistentFlags().Set("db-path", dbPath); err != nil {
 			return err
 		}
