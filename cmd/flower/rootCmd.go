@@ -64,13 +64,10 @@ var rootCmd = &cobra.Command{
 		}
 
 		// TODO: This should be stored on App.Config somewhere instead of a flag (see above)
-		if err := cmd.Root().PersistentFlags().Set("db-path", dbPath); err != nil {
-			return err
-		}
-
-		log.Info("Using Flags (post resolution)",
+		log.Info("Using Environment (post resolution)",
 			"game-path", gameInstallPath,
-			"db-path", dbPath)
+			"source-path", cmd.Flag("source-path").Value.String(),
+			"debug", cmd.Flag("debug").Value.String())
 
 		return nil
 	},

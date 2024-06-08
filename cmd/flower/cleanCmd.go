@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 
 	log "github.com/AlbinoGeek/logxi/v1"
 	"github.com/spf13/cobra"
@@ -59,7 +60,8 @@ func onCleanCmdRun(cmd *cobra.Command, args []string) {
 
 	// Reset the plugin database
 	// TODO: This should be on App.Config not a flag
-	dbPath, err := cmd.Flags().GetString("db-path")
+	gameInstallPath, err := cmd.Flags().GetString("game-path")
+	dbPath := filepath.Join(gameInstallPath, "flower.db")
 	if err != nil {
 		log.Error("failed to query database path", "error", err)
 		return
