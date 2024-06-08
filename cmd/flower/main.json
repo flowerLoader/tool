@@ -12,10 +12,6 @@
           "entrypoints": [
             "gameSupport/games.coaw.ts"
           ]
-        },
-        "map": {
-          "logger.html": "logger.html",
-          "logger.css": "css/logger.css"
         }
       },
       "meta": {

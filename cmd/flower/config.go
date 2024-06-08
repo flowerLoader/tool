@@ -19,7 +19,6 @@ type LoaderConfig struct {
 		ID          string
 		Entrypoints []string
 	}
-	Map map[string]string
 }
 
 type GameConfig struct {
