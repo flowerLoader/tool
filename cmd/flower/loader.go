@@ -28,6 +28,8 @@ func initFlowerLoader(config *Config, gameInstallPath string) error {
 		if err := installFlowerLoader(game, gameInstallPath); err != nil {
 			return fmt.Errorf("failed to install loader for game: %w", err)
 		}
+
+		return nil
 	}
 
 	return errors.New("no valid loader found for specified (or detected) game(s)")
