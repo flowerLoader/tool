@@ -22,6 +22,20 @@ func newTracker(message string) (work func(v int64), done func()) {
 		func() { tracker.MarkAsDone() }
 }
 
+func newTrackerOf(message string, n int64) (work func(v int64), done func()) {
+	tracker := &progress.Tracker{
+		ExpectedDuration: 1 * time.Second,
+		Message:          message,
+		Total:            n,
+		Units:            progress.UnitsDefault,
+	}
+
+	pw.AppendTracker(tracker)
+
+	return func(v int64) { tracker.Increment(v) },
+		func() { tracker.MarkAsDone() }
+}
+
 func setupProgress() {
 	if pw != nil {
 		pw.Stop()
