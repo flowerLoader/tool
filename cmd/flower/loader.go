@@ -124,7 +124,7 @@ func copyAll(src, dst string, includes []string) error {
 			return fmt.Errorf("failed to write file: %w", err)
 		}
 
-		log.Info("Installed file", "dst", dstPath)
+		log.Debug("Installed file", "dst", dstPath)
 	}
 
 	return nil
@@ -300,12 +300,16 @@ func buildFlowerLoader(game GameConfig, sourcePath string, outputPath string) er
 		return errors.New("unsupported build system")
 	}
 
+	logLevel := api.LogLevelInfo
+	if rootCmd.Flags().Changed("debug") {
+		logLevel = api.LogLevelDebug
+	}
 	result := api.Build(api.BuildOptions{
 		Bundle:        true,
 		EntryPoints:   entryPoints,
 		Format:        api.FormatESModule,
 		LegalComments: api.LegalCommentsEndOfFile,
-		LogLevel:      api.LogLevelDebug,
+		LogLevel:      logLevel,
 		Platform:      api.PlatformNode,
 
 		Banner: map[string]string{
