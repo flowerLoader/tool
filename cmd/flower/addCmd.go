@@ -23,7 +23,7 @@ var addCmd = &cobra.Command{
 	Aliases: []string{"a", "install", "get", "fetch"},
 	Short:   "Add a plugin",
 	Long:    "Add a plugin from a git repository or local file",
-	Example: `flower add FlowerTeam.LimitBreaker`,
+	Example: `flower add LimitBreaker`,
 	Args:    cobra.MinimumNArgs(1),
 	Run:     onAddCommandRun,
 }

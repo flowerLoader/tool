@@ -12,7 +12,7 @@ var removeCmd = &cobra.Command{
 	Aliases: []string{"rm", "uninstall", "delete"},
 	Short:   "Remove a plugin",
 	Long:    "Remove a plugin by name from the local database. This will not delete the plugin files.",
-	Example: `flower remove FlowerTeam.LimitBreaker`,
+	Example: `flower remove LimitBreaker`,
 	Args:    cobra.MinimumNArgs(1),
 	Run:     onRemoveCommandRun,
 }

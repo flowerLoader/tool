@@ -12,7 +12,7 @@ var enableCmd = &cobra.Command{
 	Aliases: []string{"en"},
 	Short:   "Enable a plugin",
 	Long:    "Mark an installed plugin as enabled in the database",
-	Example: `flower enable FlowerTeam.LimitBreaker`,
+	Example: `flower enable LimitBreaker`,
 	Args:    cobra.MinimumNArgs(1),
 	Run:     onEnableCommandRun,
 }

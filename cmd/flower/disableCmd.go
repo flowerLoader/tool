@@ -12,7 +12,7 @@ var disableCmd = &cobra.Command{
 	Aliases: []string{"dis"},
 	Short:   "Disable a plugin",
 	Long:    "Mark an installed plugin as disabled in the database",
-	Example: `flower disable FlowerTeam.LimitBreaker`,
+	Example: `flower disable LimitBreaker`,
 	Args:    cobra.MinimumNArgs(1),
 	Run:     onDisableCommandRun,
 }

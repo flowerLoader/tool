@@ -18,7 +18,7 @@ var updateCmd = &cobra.Command{
 	Aliases: []string{"up", "upgrade"},
 	Short:   "Update a plugin",
 	Long:    "Update an installed plugin to the latest version",
-	Example: `flower update FlowerTeam.LimitBreaker`,
+	Example: `flower update LimitBreaker`,
 	Args:    cobra.MinimumNArgs(1),
 	Run:     onUpdateCommandRun,
 }

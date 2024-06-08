@@ -19,7 +19,7 @@ var searchCmd = &cobra.Command{
 	Aliases: []string{"s", "find"},
 	Short:   "Search for a plugin",
 	Long:    "Search for a plugin by name, author, tags or summary",
-	Example: `flower search LimitBreaker`,
+	Example: `flower search flowerLoader`,
 	Args:    cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var sb strings.Builder
