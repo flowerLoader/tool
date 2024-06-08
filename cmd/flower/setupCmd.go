@@ -9,7 +9,7 @@ var setupCmd = &cobra.Command{
 	Aliases: []string{"init", "configure"},
 	Short:   "Setup the flowerLoader environment",
 	Long:    "Setup the flowerLoader environment for the first time (or after a reinstall)",
-	Example: `flower setup --game-path /path/to/game --db-path /path/to/db`,
+	Example: `flower setup --game-path /path/to/game`,
 	Args:    cobra.NoArgs,
 	Run:     onSetupCommandRun,
 }
