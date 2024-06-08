@@ -82,10 +82,13 @@ func cloneOrOpen(ctx context.Context, url, path string, pull bool) (*git.Reposit
 
 		log.Debug("Pulling Repository", "path", path, "url", url)
 		t := time.Now()
-		if err := wt.PullContext(ctx, &git.PullOptions{
-			RemoteName: "origin",
+		if err := wt.Checkout(&git.CheckoutOptions{
+			Branch: "refs/heads/main",
+			Create: false,
+			Force:  true,
+			Keep:   false,
 		}); err != nil && err != git.NoErrAlreadyUpToDate {
-			return repo, err
+			return repo, fmt.Errorf("failed to checkout: %w", err)
 		}
 
 		log.Debug("Pulling Repository", "path", path, "took", time.Since(t).String())
