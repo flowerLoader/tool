@@ -11,7 +11,6 @@ import (
 	"slices"
 	"strings"
 	"sync"
-	"time"
 
 	log "github.com/AlbinoGeek/logxi/v1"
 	"github.com/codeclysm/extract/v3"
@@ -168,10 +167,6 @@ func installDependencies(jsonPath string) error {
 		return fmt.Errorf("failed to create node_modules directory: %w", err)
 	}
 
-	setupProgress()
-	n := int64(len(allDeps))
-	work, done := newTrackerOf(fmt.Sprintf("Checking %d dependencies ...", n), n)
-
 	{
 		// Get all dependency names
 		keys := make([]string, 0, len(allDeps))
@@ -189,21 +184,17 @@ func installDependencies(jsonPath string) error {
 			} else {
 				log.Debug("Dependency not yet installed", "dep", key)
 			}
-
-			work(1)
 		}
 	}
-
-	time.Sleep(time.Millisecond * 100)
-	done()
 
 	if len(allDeps) == 0 {
 		fmt.Println("All dependencies are already installed")
 		return nil
 	}
 
-	n = int64(len(allDeps))
-	work, done = newTrackerOf(fmt.Sprintf("Installing %d dependencies ...", n), n)
+	setupProgress()
+	n := int64(len(allDeps))
+	work, done := newTrackerOf(fmt.Sprintf("Installing %d dependencies ...", n), n)
 	defer done()
 
 	// Process all dependencies in parallel
