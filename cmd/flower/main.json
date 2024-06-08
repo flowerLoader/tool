@@ -2,7 +2,7 @@
   "games": [
     {
       "loader": {
-        "id": "github.com/flowerLoader/core#branch=devel-2",
+        "id": "github.com/flowerLoader/core",
         "base": [
           "game",
           "gamedata/game"
