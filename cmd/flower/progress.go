@@ -64,6 +64,6 @@ func setupProgress() {
 	pw.Style().Visibility.SpeedOverall = false
 	pw.Style().Visibility.Time = true
 	pw.Style().Visibility.Value = false
-	pw.SetUpdateFrequency(time.Millisecond * 5)
+	pw.SetUpdateFrequency(time.Millisecond * 50)
 	go pw.Render()
 }
