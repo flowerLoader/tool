@@ -8,11 +8,15 @@ import (
 )
 
 func promptConfirm(prompt string) bool {
-	log.Warn(prompt, " [y/N]")
+	log.Info("Prompting for confirmation", "prompt", prompt)
+	print(prompt, "[y/N]: ")
 
 	var response string
 	if _, err := fmt.Scanln(&response); err != nil {
-		log.Error("Failed to read response", "error", err)
+		if err.Error() != "unexpected newline" {
+			log.Error("Unexpected error reading confirmation response", "error", err)
+		}
+
 		return false
 	}
 
