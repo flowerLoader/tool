@@ -22,6 +22,12 @@ var (
  */`
 )
 
+var (
+	ErrNoEntrypoint   = errors.New("no entrypoint found, must use WithEntrypoints")
+	ErrNoOutput       = errors.New("transpilation produced no output files")
+	ErrMultipleOutput = errors.New("transpilation produced multiple output files")
+)
+
 func TranspileProject(sourcePath, outputFilename string, opts ...BuildOption) error {
 	buildOptions := api.BuildOptions{
 		Bundle:        true,
@@ -46,7 +52,10 @@ func TranspileProject(sourcePath, outputFilename string, opts ...BuildOption) er
 	if len(buildOptions.EntryPoints) == 0 {
 		entrypoint, err := detectEntrypoint(sourcePath)
 		if err != nil {
-			return fmt.Errorf("failed to detect entrypoint: %w", err)
+			return errors.Join(
+				ErrNoEntrypoint,
+				fmt.Errorf("failed to detect entrypoint: %w", err),
+			)
 		}
 
 		log.Debug("Detected entrypoint", "entrypoint", entrypoint)
@@ -54,7 +63,17 @@ func TranspileProject(sourcePath, outputFilename string, opts ...BuildOption) er
 	}
 
 	if len(buildOptions.EntryPoints) == 0 {
-		return errors.New("no entrypoints found or specified for transpilation")
+		return ErrNoEntrypoint
+	}
+
+	// Ensure the entrypoints exist
+	for _, entrypoint := range buildOptions.EntryPoints {
+		if _, err := os.Stat(entrypoint); err != nil {
+			return errors.Join(
+				ErrNoEntrypoint,
+				fmt.Errorf("failed to stat entrypoint: %w", err),
+			)
+		}
 	}
 
 	// Set debug logging if necessary
@@ -80,7 +99,9 @@ func TranspileProject(sourcePath, outputFilename string, opts ...BuildOption) er
 	}
 
 	if len(result.OutputFiles) > 1 {
-		return errors.New("unexpected >1 output files")
+		return ErrMultipleOutput
+	} else if len(result.OutputFiles) == 0 {
+		return ErrNoOutput
 	}
 
 	resultingJS := result.OutputFiles[0].Contents
@@ -108,7 +129,7 @@ func WithDebugMode(debugMode bool) func(*api.BuildOptions) {
 	}
 }
 
-func WithEntrypoints(entrypoints []string) func(*api.BuildOptions) {
+func WithEntrypoints(entrypoints ...string) func(*api.BuildOptions) {
 	return func(opts *api.BuildOptions) {
 		opts.EntryPoints = entrypoints
 	}
