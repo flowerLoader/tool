@@ -20,21 +20,15 @@ func init() {
 }
 
 func onNewPluginRun(cmd *cobra.Command, args []string) {
-	// Parse the plugin name
-	name := args[0]
-	fullName := parsePluginName(name)
-	log.Debug("Resolved Plugin Name", "input", name, "resolved", fullName)
+	fullName := parsePluginName(args[0])
+	log.Debug("Resolved Plugin Name", "input", args[0], "resolved", fullName)
 
 	// Check if the plugin is already installed
 	plugin, err := App.DB.Plugins.Get(fullName)
 	if err != nil {
-		log.Error("failed to query local plugin database", "name", fullName, "error", err)
-		return
-	}
-
-	if plugin != nil {
-		log.Error("A plugin with the same name already exists", "name", fullName)
-		return
+		exit(ErrQueryDB, err)
+	} else if plugin != nil {
+		exit(ErrNameTaken, fullName)
 	}
 
 	// Clone the template repository and install it, change the git remote, etc.

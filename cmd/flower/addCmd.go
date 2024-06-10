@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath" // Added for cross-platform path handling
@@ -33,29 +32,14 @@ func init() {
 }
 
 func onAddCommandRun(cmd *cobra.Command, args []string) {
-	// `plugin` is either a git repository (full URL, or org/repo), or local path
-	// If it's a git repository, clone it into the plugins directory
-	// If it's a local path, add a reference to it in the plugins directory
-
-	// Parse the plugin name
-	name := args[0]
-	fullName := parsePluginName(name)
-	log.Debug("Resolved Plugin Name", "input", name, "resolved", fullName)
+	fullName := parsePluginName(args[0])
+	log.Debug("Resolved Plugin Name", "input", args[0], "resolved", fullName)
 
 	// Check if the plugin is already installed
-	plugin, err := App.DB.Plugins.Get(fullName)
-	if err != nil {
-		log.Error("Failed to query plugin database", "error", err)
-		return
-	}
-
-	if plugin != nil {
-		log.Warn("Plugin Already Installed", "name", fullName)
-		fmt.Printf("Plugin %s is already installed\n", fullName)
-
-		withoutNS := strings.SplitN(fullName, "/", 2)[1]
-		fmt.Printf("To update the plugin, use `flower update %s`\n", withoutNS)
-		return
+	if plugin, err := App.DB.Plugins.Get(fullName); err != nil {
+		exit(ErrQueryDB, err)
+	} else if plugin != nil {
+		exit(ErrAlreadyInstalled, fullName)
 	}
 
 	sourcePath, err := rootCmd.Flags().GetString("source-path")
@@ -124,7 +108,3 @@ func installPluginLocal(cmd *cobra.Command, fullName string) error {
 		Path:        fullName,
 	})
 }
-
-var (
-	ErrPluginAlreadyInstalled = errors.New("plugin is already installed")
-)

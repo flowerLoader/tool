@@ -22,21 +22,15 @@ func init() {
 }
 
 func onEnableCommandRun(cmd *cobra.Command, args []string) {
-	name := args[0]
-	fullName := parsePluginName(name)
-	log.Debug("Resolved Plugin Name", "input", name, "resolved", fullName)
+	fullName := parsePluginName(args[0])
+	log.Debug("Resolved Plugin Name", "input", args[0], "resolved", fullName)
 
-	// Check if the plugin is installed
+	// Check if the plugin is already installed
 	plugin, err := App.DB.Plugins.Get(fullName)
 	if err != nil {
-		log.Error("Failed to query plugin database", "error", err)
-		return
-	}
-
-	if plugin == nil {
-		log.Warn("Plugin Not Installed", "name", fullName)
-		fmt.Printf("Plugin %s is not installed\n", fullName)
-		return
+		exit(ErrQueryDB, err)
+	} else if plugin == nil {
+		exit(ErrNotInstalled, fullName)
 	}
 
 	// Mark the plugin as enabled
