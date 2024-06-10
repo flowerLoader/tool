@@ -36,17 +36,8 @@ func onCleanCmdRun(cmd *cobra.Command, args []string) {
 		"cloned", stat.Counts.Cloned,
 		"enabled", stat.Counts.Enabled)
 
-	// Prompt the user to confirm the reset
-	forced, err := cmd.Flags().GetBool("force")
-	if err != nil {
-		log.Error("failed to query force flag", "error", err)
+	if !confirmReset(cmd) {
 		return
-	}
-
-	if !forced {
-		if !promptConfirm("Are you sure you want to reset the plugin database?") {
-			return
-		}
 	}
 
 	// Close the database connection
@@ -73,4 +64,18 @@ func onCleanCmdRun(cmd *cobra.Command, args []string) {
 	}
 
 	log.Warn("Plugin database reset")
+}
+
+func confirmReset(cmd *cobra.Command) bool {
+	forced, err := cmd.Flags().GetBool("force")
+	if err != nil {
+		log.Error("failed to query force flag", "error", err)
+		return false
+	}
+
+	if !forced && !promptConfirm("Are you sure you want to reset the plugin database?") {
+		return false
+	}
+
+	return true
 }
