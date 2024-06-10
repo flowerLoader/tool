@@ -10,13 +10,16 @@ import (
 )
 
 var (
+	// Pattern for the backup filename (original file will be renamed to this)
+	backupFilenamePattern = "%s.bak"
+
 	// Regex to match a variable declaration line in TypeScript (const/var/let variable = value;)
 	variableRegex = regexp.MustCompile(`^\s*(const|var|let)\s+(\w+)\s*=\s*[^;]*`)
 )
 
 func setVariable(filename, variable, value string) error {
 	// Rename the original file to a backup file
-	backupFilename := filename + ".bak"
+	backupFilename := fmt.Sprintf(backupFilenamePattern, filename)
 	if err := os.Rename(filename, backupFilename); err != nil {
 		return fmt.Errorf("failed to rename original file to backup: %w", err)
 	}
