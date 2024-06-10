@@ -70,10 +70,6 @@ func detectEntrypoint(sourcePath string) (string, error) {
 		if filepath.Ext(file.Name()) == ".ts" {
 			tsFiles = append(tsFiles, file.Name())
 		}
-
-		if len(tsFiles) > 1 {
-			break
-		}
 	}
 
 	if len(tsFiles) == 1 {
