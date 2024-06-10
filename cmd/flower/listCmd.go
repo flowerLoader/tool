@@ -53,15 +53,54 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 		return
 	}
 	log.Info("Installed Plugins", "count", len(records))
+	toRender := filterPlugins(records, authorFilter)
 
+	if len(toRender) == 0 {
+		log.Warn("No plugins matched the filter",
+			"author", authorFilter,
+			"ignored", len(records))
+		return
+	}
+
+	if err := listOutputTemplate.Execute(os.Stdout, toRender); err != nil {
+		log.Error("Failed to execute template (can't print?)", "error", err)
+	}
+}
+
+func filterPlugins(
+	records []*types.PluginInstallRecord,
+	authorFilter string,
+) map[string]interface{} {
 	toRender := make(map[string]interface{})
+	filters := compileFilters(authorFilter)
 
+	for _, record := range records {
+		cacheRecord, err := App.DB.Plugins.CacheGet(record.ID)
+		if err != nil || cacheRecord == nil {
+			exit(ErrQueryDB, err)
+		}
+
+		if applyFilters(cacheRecord, filters) {
+			toRender[record.ID] = map[string]interface{}{
+				"Name":        cacheRecord.Name,
+				"Version":     cacheRecord.Version,
+				"Author":      cacheRecord.Author,
+				"InstalledAt": types.MustParseTime(record.InstalledAt).Local().Format(time.RFC822),
+				"UpdatedAt":   types.MustParseTime(cacheRecord.UpdatedAt).Local().Format(time.RFC822),
+			}
+		}
+	}
+
+	return toRender
+}
+
+func compileFilters(authorFilter string) []func(*types.PluginCacheRecord) bool {
 	filters := make([]func(*types.PluginCacheRecord) bool, 0)
 	if authorFilter != "" {
 		pattern, err := regexp.Compile(authorFilter)
 		if err != nil {
 			log.Error("Failed to compile author filter", "error", err)
-			return
+			return nil
 		}
 
 		filters = append(filters, func(record *types.PluginCacheRecord) bool {
@@ -69,41 +108,18 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 		})
 	}
 
-outer:
-	for _, record := range records {
-		cacheRecord, err := App.DB.Plugins.CacheGet(record.ID)
-		if err != nil || cacheRecord == nil {
-			log.Error("Failed to get plugin info from cache", "id", record.ID, "error", err)
-			continue
-		}
+	return filters
+}
 
-		// Apply filters
-		if len(filters) > 0 {
-			for _, filter := range filters {
-				if !filter(cacheRecord) {
-					continue outer
-				}
-			}
-		}
-
-		// Add the cache record to the data map
-		toRender[record.ID] = map[string]interface{}{
-			"Name":        cacheRecord.Name,
-			"Version":     cacheRecord.Version,
-			"Author":      cacheRecord.Author,
-			"InstalledAt": types.MustParseTime(record.InstalledAt).Local().Format(time.RFC822),
-			"UpdatedAt":   types.MustParseTime(cacheRecord.UpdatedAt).Local().Format(time.RFC822),
-		}
-
-		if len(toRender) == 0 {
-			log.Warn("No plugins matched the filter",
-				"author", authorFilter,
-				"ignored", len(records))
-			return
+func applyFilters(
+	record *types.PluginCacheRecord,
+	filters []func(*types.PluginCacheRecord) bool,
+) bool {
+	for _, filter := range filters {
+		if !filter(record) {
+			return false
 		}
 	}
 
-	if err := listOutputTemplate.Execute(os.Stdout, toRender); err != nil {
-		log.Error("Failed to execute template (can't print?)", "error", err)
-	}
+	return true
 }
