@@ -12,6 +12,7 @@ var (
 	ErrNameTaken        = errors.New("plugin name is already taken, try a different name")
 	ErrNotInstalled     = errors.New("plugin is not installed, use `flower add` instead")
 	ErrQueryDB          = errors.New("failed to query plugin database, check logs for details")
+	ErrUpdateDB         = errors.New("failed to update plugin database, check logs for details")
 )
 
 func exit(err error, args ...interface{}) {

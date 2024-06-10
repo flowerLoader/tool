@@ -28,8 +28,7 @@ func init() {
 func onCleanCmdRun(cmd *cobra.Command, args []string) {
 	stat, err := App.DB.Stat()
 	if err != nil {
-		log.Error("failed to query plugin database stats", "error", err)
-		return
+		exit(ErrQueryDB, err)
 	}
 
 	log.Info("Plugin Database Stats",

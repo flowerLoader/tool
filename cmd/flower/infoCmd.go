@@ -35,8 +35,7 @@ func onInfoCommandRun(cmd *cobra.Command, args []string) {
 	query := strings.Join(queryArgs, " ")
 	cacheRecord, err := App.DB.Plugins.CacheGet(query)
 	if err != nil {
-		log.Error("Failed to get plugin info from cache", "error", err)
-		return
+		exit(ErrQueryDB, err)
 	}
 
 	if cacheRecord == nil {
@@ -50,8 +49,7 @@ func onInfoCommandRun(cmd *cobra.Command, args []string) {
 
 		cacheRecord, err = App.DB.Plugins.CacheGet(parsePluginName(query))
 		if err != nil {
-			log.Error("Failed to get plugin info from cache", "error", err)
-			return
+			exit(ErrQueryDB, err)
 		}
 
 		if cacheRecord == nil {

@@ -36,8 +36,7 @@ func onEnableCommandRun(cmd *cobra.Command, args []string) {
 	// Mark the plugin as enabled
 	plugin.Enabled = true
 	if err := App.DB.Plugins.Update(plugin); err != nil {
-		log.Error("Failed to update plugin status in database", "error", err)
-		return
+		exit(ErrUpdateDB, err)
 	}
 
 	log.Info("Plugin Enabled", "name", fullName)
