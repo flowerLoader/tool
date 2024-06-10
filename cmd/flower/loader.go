@@ -93,7 +93,7 @@ func installFlowerLoader(game GameConfig, gameInstallPath string) error {
 		if err := ts.TranspileProject(
 			clonePath,
 			filepath.Join(buildPath, "flowerful.js"),
-			ts.WithEntrypoints(entryPoints),
+			ts.WithEntrypoints(entryPoints...),
 			ts.WithDebugMode(rootCmd.Flags().Changed("debug")),
 		); err != nil {
 			return fmt.Errorf("failed to build loader: %w", err)
