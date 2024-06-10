@@ -80,6 +80,9 @@ func NewConfig() (*Config, error) {
 	if err := os.Mkdir(osConfigPath, 0755); err != nil && !os.IsExist(err) {
 		return nil, err
 	}
+
+	log.Debug("Loading Application Configuration",
+		"osConfigPath", osConfigPath)
 	viper.AddConfigPath(osConfigPath)
 
 	if err := viper.ReadInConfig(); err == nil {
@@ -87,7 +90,9 @@ func NewConfig() (*Config, error) {
 			return toolConfig, err
 		}
 
-		log.Info("Loaded AppConfig", "filepath", viper.ConfigFileUsed())
+		log.Debug("Loaded Application Configuration",
+			"filepath", viper.ConfigFileUsed(),
+			"config.environments", toolConfig.App.Environments)
 	} else if strings.Contains(err.Error(), "Not Found in ") {
 		if err := viper.WriteConfigAs(
 			filepath.Join(osConfigPath, "flower_env.json"),
@@ -95,11 +100,12 @@ func NewConfig() (*Config, error) {
 			return toolConfig, err
 		}
 
-		log.Warn("Created default AppConfig",
+		log.Warn("Created Default Application Configuration",
 			"filepath", viper.ConfigFileUsed(),
 			"environments", toolConfig.App.Environments)
 	} else {
-		log.Warn("Failed to load AppConfig", "error", err)
+		log.Warn("Failed to Load Application Configuration",
+			"error", err)
 	}
 
 	return toolConfig, nil

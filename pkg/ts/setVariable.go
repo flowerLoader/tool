@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+
+	log "github.com/AlbinoGeek/logxi/v1"
 )
 
 var (
@@ -35,7 +37,6 @@ func setVariable(filename, variable, value string) error {
 
 	scanner := bufio.NewScanner(bakFile)
 	writer := bufio.NewWriter(newFile)
-
 	for scanner.Scan() {
 		line := scanner.Text()
 		if variableRegex.MatchString(line) {
@@ -44,6 +45,11 @@ func setVariable(filename, variable, value string) error {
 			if len(parts) > 2 && parts[2] == variable {
 				// Replace only if the variable name matches
 				line = fmt.Sprintf("%s %s = %s;", parts[1], variable, value)
+
+				log.Debug("Updated variable",
+					"filename", filename,
+					"variable", variable,
+					"value", value)
 			}
 		}
 		// Write the (possibly modified) line to the new file

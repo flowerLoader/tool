@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	log "github.com/AlbinoGeek/logxi/v1"
 )
 
 func detectEntrypoint(sourcePath string) (string, error) {
@@ -20,6 +22,7 @@ func detectEntrypoint(sourcePath string) (string, error) {
 
 	// Check for a package.json and use the main field
 	pkgFile := filepath.Join(sourcePath, "package.json")
+	log.Debug("Checking for package.json", "path", pkgFile)
 	if _, err := os.Stat(pkgFile); err == nil {
 		type packageJSON struct {
 			Main string `json:"main"`
@@ -37,6 +40,7 @@ func detectEntrypoint(sourcePath string) (string, error) {
 
 		if pkg.Main != "" {
 			mainPath := filepath.Join(sourcePath, pkg.Main)
+			log.Debug("Using main field from package.json", "main", mainPath)
 			if _, err := os.Stat(mainPath); err == nil {
 				return mainPath, nil
 			}
@@ -73,6 +77,7 @@ func detectEntrypoint(sourcePath string) (string, error) {
 	}
 
 	if len(tsFiles) == 1 {
+		log.Debug("Using sole .ts file as entrypoint", "file", tsFiles[0])
 		return filepath.Join(sourcePath, tsFiles[0]), nil
 	}
 

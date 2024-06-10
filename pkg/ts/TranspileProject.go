@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	log "github.com/AlbinoGeek/logxi/v1"
 	"github.com/evanw/esbuild/pkg/api"
 )
 
@@ -48,6 +49,7 @@ func TranspileProject(sourcePath, outputFilename string, opts ...BuildOption) er
 			return fmt.Errorf("failed to detect entrypoint: %w", err)
 		}
 
+		log.Debug("Detected entrypoint", "entrypoint", entrypoint)
 		buildOptions.EntryPoints = []string{entrypoint}
 	}
 
@@ -63,6 +65,10 @@ func TranspileProject(sourcePath, outputFilename string, opts ...BuildOption) er
 	}
 
 	// Compile the TypeScript project
+	log.Info("Transpiling TypeScript project",
+		"sourcePath", sourcePath,
+		"outputFilename", outputFilename)
+
 	result := api.Build(buildOptions)
 	if len(result.Errors) > 0 {
 		fmt.Printf("Failed to transpile %v\n", sourcePath)
@@ -82,6 +88,7 @@ func TranspileProject(sourcePath, outputFilename string, opts ...BuildOption) er
 		outputFilename = fmt.Sprintf("%s.js", outputFilename)
 	}
 
+	log.Debug("Writing output file", "outputFilename", outputFilename)
 	if err := os.WriteFile(outputFilename, resultingJS, 0644); err != nil {
 		return fmt.Errorf("failed to write output file: %w", err)
 	}

@@ -32,6 +32,7 @@ var rootCmd = &cobra.Command{
 		if val, err := cmd.Flags().GetBool("debug"); val && err == nil {
 			log.InternalLog.SetLevel(log.LevelDebug)
 			log.DefaultLog.SetLevel(log.LevelDebug)
+			log.Info("Debugging Enabled (by flag)")
 		}
 
 		App.Config, err = NewConfig()
@@ -64,10 +65,10 @@ var rootCmd = &cobra.Command{
 		}
 
 		// TODO: This should be stored on App.Config somewhere instead of a flag (see above)
-		log.Info("Using Environment (post resolution)",
+		log.Info("Using Environment Configuration",
+			"db-path", dbPath,
 			"game-path", gameInstallPath,
-			"source-path", cmd.Flag("source-path").Value.String(),
-			"debug", cmd.Flag("debug").Value.String())
+			"source-path", cmd.Flag("source-path").Value.String())
 
 		return nil
 	},

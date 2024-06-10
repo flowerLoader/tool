@@ -24,15 +24,15 @@ var (
 func findGameInstallationPath() (string, error) {
 	st := steam.NewSteam()
 	if err := st.Find(); err != nil {
-		log.Error("failed to locate Steam installation", "error", err)
 		return "", err
 	}
 
-	log.Debug("findGameInstallationPath", "libraryFolders", st.LibraryFolders)
+	log.Debug("Scanning for Game Installation Path...",
+		"libraryFolders", st.LibraryFolders)
+
 	for _, libraryFolder := range st.LibraryFolders {
 		path := filepath.Join(libraryFolder, pathParts)
 		if stat, err := os.Stat(path); err == nil && stat.IsDir() {
-			log.Debug("findGameInstallationPath: found", "path", path)
 			return path, nil
 		}
 	}
@@ -58,7 +58,6 @@ func firstExisting(paths ...string) string {
 // be detected using Steam's library folders. If the game is not found in any of
 // the library folders, or the given path is invalid, an error is returned.
 func resolveGamePath(path string) (resolvedPath string, err error) {
-	log.Debug("resolveGamePath: start", "path", path)
 	if path == "" {
 		if path, err = findGameInstallationPath(); err != nil {
 			return "", err // error already logged
@@ -68,11 +67,13 @@ func resolveGamePath(path string) (resolvedPath string, err error) {
 	linuxPath := filepath.Join(path, pathPartLinux)
 	windowsPath := filepath.Join(path, pathPartWindows)
 	if path = firstExisting(linuxPath, windowsPath); path == "" {
-		log.Error("failed to resolve game installation path, guessed paths:",
-			"linux", linuxPath, "windows", windowsPath)
+		log.Error("Game Directory Not Found",
+			"path", path,
+			"linuxPath", linuxPath,
+			"windowsPath", windowsPath)
+
 		return "", errGameNotFound
 	}
 
-	log.Debug("resolveGamePath: resolved", "path", path)
 	return path, nil
 }
