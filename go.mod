@@ -9,7 +9,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/andygrunwald/vdf v1.1.0
 	github.com/codeclysm/extract/v3 v3.1.1
-	github.com/evanw/esbuild v0.21.4
+	github.com/evanw/esbuild v0.21.5
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/google/go-github/v62 v62.0.0
 	github.com/jedib0t/go-pretty/v6 v6.5.9
