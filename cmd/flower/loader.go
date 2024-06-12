@@ -15,11 +15,12 @@ import (
 	log "github.com/AlbinoGeek/logxi/v1"
 	"github.com/codeclysm/extract/v3"
 
+	"github.com/flowerLoader/tool/pkg/cfg"
 	"github.com/flowerLoader/tool/pkg/ts"
 )
 
 // TODO: SUPPORT OTHER GAMES
-func initFlowerLoader(config *Config, gameInstallPath string) error {
+func initFlowerLoader(config *cfg.Config, gameInstallPath string) error {
 	for _, game := range config.Games {
 		if !strings.Contains(gameInstallPath, game.Subsystem.AppName) {
 			continue
@@ -35,7 +36,7 @@ func initFlowerLoader(config *Config, gameInstallPath string) error {
 	return errors.New("no valid loader found for specified (or detected) game(s)")
 }
 
-func installFlowerLoader(game GameConfig, gameInstallPath string) error {
+func installFlowerLoader(game cfg.GameConfig, gameInstallPath string) error {
 	log.Debug("Loading loader",
 		"game", game.Meta.Name,
 		"gamePath", gameInstallPath)

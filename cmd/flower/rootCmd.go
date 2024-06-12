@@ -1,16 +1,21 @@
 package main
 
 import (
+	_ "embed"
 	"path/filepath"
 
 	log "github.com/AlbinoGeek/logxi/v1"
 	"github.com/spf13/cobra"
 
+	"github.com/flowerLoader/tool/pkg/cfg"
 	"github.com/flowerLoader/tool/pkg/db"
 )
 
+//go:embed main.json
+var MAIN_JSON []byte
+
 type Application struct {
-	Config *Config
+	Config *cfg.Config
 	DB     *db.DB
 }
 
@@ -35,7 +40,7 @@ var rootCmd = &cobra.Command{
 			log.Info("Debugging Enabled (by flag)")
 		}
 
-		App.Config, err = NewConfig()
+		App.Config, err = cfg.LoadFromJSON(MAIN_JSON)
 		if err != nil || len(App.Config.Games) == 0 {
 			panic("fatal: no games found in config (check main.json and rebuild) error: " + err.Error())
 		}
