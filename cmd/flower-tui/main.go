@@ -11,8 +11,10 @@ const (
 	APPVERSION = "0.1.0"
 )
 
+var app *App
+
 func main() {
-	app := &App{mainRouter: router.New()}
+	app = &App{mainRouter: router.New()}
 	program := reactea.NewProgram(app, tea.WithAltScreen())
 	if _, err := program.Run(); err != nil {
 		panic(err)
