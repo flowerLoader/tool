@@ -12,4 +12,6 @@ var (
 	TextDark     = lipgloss.NewStyle().Foreground(ColorPrimaryDark)
 	TextDisabled = lipgloss.NewStyle().Foreground(ColorDisabled)
 	TextMain     = lipgloss.NewStyle().Foreground(ColorPrimaryMain)
+
+	TextError = lipgloss.NewStyle().Foreground(lipgloss.Color("9"))
 )
