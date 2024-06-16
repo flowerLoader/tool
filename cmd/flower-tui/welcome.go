@@ -142,15 +142,15 @@ func (c *welcomeComponent) renderCursor(pos int, after string) string {
 
 	elements := make([]string, 1)
 	if c.cursorPos == pos {
-		elements[0] = ColorPrimary.
-			Background(lipgloss.Color("234")).
-			Render(" → ")
+		elements[0] = ColorPrimary.Render(" → ")
+		elements = append(elements, ColorPrimary.Render(" "))
+		elements = append(elements, ColorPrimary.Render(after))
 	} else {
-		elements[0] = ColorDisabled.
-			Render("   ")
+		elements[0] = ColorDisabled.Render("   ")
+		elements = append(elements, ColorDisabled.Render(" "))
+		elements = append(elements, ColorDisabled.Render(after))
 	}
 
-	elements = append(elements, after)
 	return zone.Mark(
 		fmt.Sprintf("cursor%d", pos),
 		lipgloss.JoinHorizontal(lipgloss.Left, elements...),
@@ -172,10 +172,10 @@ func (c *welcomeComponent) renderInput() string {
 		))
 	}
 
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		elements...,
-	)
+	return lipgloss.NewStyle().
+		Width(c.filterInput.Width).
+		Background(lipgloss.Color(ANSIBackground)).
+		Render(lipgloss.JoinVertical(lipgloss.Left, elements...))
 }
 
 func (c *welcomeComponent) setCursorPos(pos int) {
@@ -192,7 +192,6 @@ func (c *welcomeComponent) setCursorPos(pos int) {
 
 func (c *welcomeComponent) Render(width, height int) string {
 	usableHeight := height - 2
-	usableWidth := width - 2
 
 	spacing := 0
 	if usableHeight > minHeight {
@@ -200,25 +199,26 @@ func (c *welcomeComponent) Render(width, height int) string {
 	}
 
 	var innerBoxStyle = ColorBorder.
-		Width(usableWidth-8).
+		Width(width-10).
 		Margin(spacing, 4, 0).
 		Padding(spacing/2, 0).
 		Border(lipgloss.RoundedBorder(), true)
 
-	c.filterInput.Width = usableWidth - 36
+	c.filterInput.Width = width - 36
 
-	var sb strings.Builder
-	sb.WriteString(lipgloss.JoinVertical(
+	return lipgloss.JoinVertical(
 		lipgloss.Top,
 
 		// Header
 		lipgloss.NewStyle().
 			Padding(1, 0).
-			Width(usableWidth).
+			Width(width).
 			AlignHorizontal(lipgloss.Center).
+			Background(lipgloss.Color(ANSIBackground)).
+			MarginBackground(lipgloss.Color(ANSIBackground)).
 			Render(fmt.Sprintf(
-				"%s %s\n%s",
-				ColorPrimary.Bold(true).Render(APPNAME),
+				"%s%s\n%s",
+				ColorPrimary.Bold(true).Render(fmt.Sprintf("%s ", APPNAME)),
 				ColorSecondary.Render(fmt.Sprintf("v%s", APPVERSION)),
 				ColorSecondary.Render(fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)),
 			)),
@@ -233,12 +233,10 @@ func (c *welcomeComponent) Render(width, height int) string {
 			lipgloss.JoinVertical(
 				lipgloss.Left,
 				c.renderCursor(1, "Add Unsupported Game (Advanced)"),
-				c.renderCursor(2, "Manage Environments"),
-				c.renderCursor(3, "TUI Settings"),
-				c.renderCursor(4, "Quit"),
+				c.renderCursor(2, "Manage Environments            "),
+				c.renderCursor(3, "TUI Settings                   "),
+				c.renderCursor(4, "Quit                           "),
 			),
 		),
-	))
-
-	return sb.String()
+	)
 }

@@ -106,17 +106,19 @@ func (app *App) Render(outerWidth, outerHeight int) string {
 	innerWidth := outerWidth - 2   // Subtract 2 for the border
 
 	// Render the main components
-	return zone.Scan(lipgloss.JoinVertical(
-		lipgloss.Left,
+	return zone.Scan(lipgloss.NewStyle().
+		Background(lipgloss.Color(ANSIBackground)).
+		Render(lipgloss.JoinVertical(
+			lipgloss.Left,
 
-		// Main content
-		ColorBorder.
-			Width(innerWidth).
-			Height(innerHeight).
-			Border(lipgloss.DoubleBorder(), true).
-			Render(app.mainRouter.Render(innerWidth, innerHeight)),
+			// Main content
+			ColorBorder.
+				Width(innerWidth).
+				Height(innerHeight).
+				Border(lipgloss.DoubleBorder(), true).
+				Render(app.mainRouter.Render(innerWidth, innerHeight)),
 
-		// Footer
-		app.controls.Render(outerWidth, footerHeight),
-	))
+			// Footer
+			app.controls.Render(outerWidth, footerHeight),
+		)))
 }

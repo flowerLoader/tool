@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -161,15 +160,15 @@ func (c *settingsComponent) renderCursor(pos int, after string) string {
 
 	elements := make([]string, 1)
 	if c.cursorPos == pos {
-		elements[0] = ColorPrimary.
-			Background(lipgloss.Color("234")).
-			Render(" → ")
+		elements[0] = ColorPrimary.Render(" → ")
+		elements = append(elements, ColorPrimary.Render(" "))
+		elements = append(elements, ColorPrimary.Render(after))
 	} else {
-		elements[0] = ColorDisabled.
-			Render("   ")
+		elements[0] = ColorDisabled.Render("   ")
+		elements = append(elements, ColorDisabled.Render(" "))
+		elements = append(elements, ColorDisabled.Render(after))
 	}
 
-	elements = append(elements, after)
 	return zone.Mark(
 		fmt.Sprintf("cursor%d", pos),
 		lipgloss.JoinHorizontal(lipgloss.Left, elements...),
@@ -249,7 +248,6 @@ func (c *settingsComponent) setThemeColor(key, value string) tea.Cmd {
 
 func (c *settingsComponent) Render(width, height int) string {
 	usableHeight := height - 2
-	usableWidth := width - 2
 
 	spacing := 0
 	if usableHeight > minHeight {
@@ -257,25 +255,24 @@ func (c *settingsComponent) Render(width, height int) string {
 	}
 
 	var innerBoxStyle = ColorBorder.
-		Width(usableWidth-8).
+		Width(width-10).
 		Margin(spacing, 4, 0).
 		Padding(spacing/2, 0).
 		Border(lipgloss.RoundedBorder(), true)
 
-	// c.filterInput.Width = usableWidth - 36
-
-	var sb strings.Builder
-	sb.WriteString(lipgloss.JoinVertical(
+	return lipgloss.JoinVertical(
 		lipgloss.Top,
 
 		// Header
 		lipgloss.NewStyle().
 			Padding(1, 0).
-			Width(usableWidth).
+			Width(width).
 			AlignHorizontal(lipgloss.Center).
+			Background(lipgloss.Color(ANSIBackground)).
+			MarginBackground(lipgloss.Color(ANSIBackground)).
 			Render(fmt.Sprintf(
-				"%s %s\n%s",
-				ColorPrimary.Bold(true).Render(APPNAME),
+				"%s%s\n%s",
+				ColorPrimary.Bold(true).Render(fmt.Sprintf("%s ", APPNAME)),
 				ColorSecondary.Render(fmt.Sprintf("v%s", APPVERSION)),
 				ColorDisabled.Render("Settings"),
 			)),
@@ -297,7 +294,5 @@ func (c *settingsComponent) Render(width, height int) string {
 				c.renderCursor(5, "Back to Main Menu"),
 			),
 		),
-	))
-
-	return sb.String()
+	)
 }
