@@ -108,7 +108,7 @@ func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 func (c *welcomeComponent) handleSubmit() tea.Cmd {
 	switch c.cursorPos {
 	case 0:
-		reactea.SetCurrentRoute("gameSelect")
+		reactea.SetCurrentRoute(fmt.Sprintf("game/%s", c.inputAutocomplete(c.input.Value())))
 	case 1:
 		reactea.SetCurrentRoute("gameAdd")
 	case 2:
@@ -120,6 +120,28 @@ func (c *welcomeComponent) handleSubmit() tea.Cmd {
 	}
 
 	return nil
+}
+
+func (c *welcomeComponent) inputAutocomplete(text string) string {
+	text = strings.ToLower(strings.TrimSpace(text))
+
+	for _, game := range app.config.Games {
+		// sort by locale
+		sorted := make([]string, 0, len(game.Meta.Name))
+		for locale := range game.Meta.Name {
+			sorted = append(sorted, locale)
+		}
+
+		slices.Sort(sorted)
+		for _, locale := range sorted {
+			name := game.Meta.Name[locale]
+			if strings.Contains(strings.ToLower(name), text) {
+				return name
+			}
+		}
+	}
+
+	return ""
 }
 
 const minHeight = 18   // # of terminal lines reserved for header and footer
@@ -148,33 +170,11 @@ func (c *welcomeComponent) renderCursor(pos int, after string) string {
 }
 
 func (c *welcomeComponent) renderInput() string {
-	autocomplete := func(text string) string {
-		text = strings.ToLower(strings.TrimSpace(text))
-
-		for _, game := range app.config.Games {
-			// sort by locale
-			sorted := make([]string, 0, len(game.Meta.Name))
-			for locale := range game.Meta.Name {
-				sorted = append(sorted, locale)
-			}
-
-			slices.Sort(sorted)
-			for _, locale := range sorted {
-				name := game.Meta.Name[locale]
-				if strings.Contains(strings.ToLower(name), text) {
-					return name
-				}
-			}
-		}
-
-		return ""
-	}
-
 	elements := []string{
 		c.input.View(),
 	}
 
-	if guess := autocomplete(c.input.Value()); guess == "" {
+	if guess := c.inputAutocomplete(c.input.Value()); guess == "" {
 		elements = append(elements, TextError.Render(
 			"Game not found. Please check your spelling and try again.",
 		))
