@@ -204,9 +204,7 @@ func (c *welcomeComponent) Render(width, height int) string {
 		lipgloss.Top,
 
 		// Filter Input Entry
-		innerBoxStyle.Render(
-			c.renderCursor(0, c.renderInput()),
-		),
+		innerBoxStyle.Render(c.renderCursor(0, c.renderInput())),
 
 		// Help Text
 		innerBoxStyle.Render(

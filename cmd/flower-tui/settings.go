@@ -233,11 +233,6 @@ func (c *settingsComponent) Render(width, height int) string {
 		)),
 
 		// Help Text
-		innerBoxStyle.Render(
-			lipgloss.JoinVertical(
-				lipgloss.Left,
-				c.renderCursor(5, "Back to Main Menu"),
-			),
-		),
+		innerBoxStyle.Render(c.renderCursor(5, "Back to Main Menu")),
 	)
 }

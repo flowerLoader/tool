@@ -22,11 +22,14 @@ func (c *controlsFooterComponent) Render(width, height int) string {
 	return theme.Gloss(DefaultStyle).Width(width).Render(
 		lipgloss.JoinHorizontal(
 			lipgloss.Left, space,
-			theme.Gloss(PrimaryStyle).Render("Ctrl+C"), space, theme.Gloss(SecondaryStyle).Render("Quit"),
+			theme.Gloss(PrimaryStyle).Render("Ctrl+C"), space,
+			theme.Gloss(SecondaryStyle).Render("Quit"),
 			dot,
-			theme.Gloss(PrimaryStyle).Render("↑↓"), space, theme.Gloss(SecondaryStyle).Render("Navigate"),
+			theme.Gloss(PrimaryStyle).Render("↑↓"), space,
+			theme.Gloss(SecondaryStyle).Render("Navigate"),
 			dot,
-			theme.Gloss(PrimaryStyle).Render("Enter"), space, theme.Gloss(SecondaryStyle).Render("Select Highlighted Option"),
+			theme.Gloss(PrimaryStyle).Render("Enter"), space,
+			theme.Gloss(SecondaryStyle).Render("Select Highlighted Option"),
 		),
 	)
 }
