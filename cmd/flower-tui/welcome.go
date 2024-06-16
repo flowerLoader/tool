@@ -40,7 +40,7 @@ func (c *welcomeComponent) Init(props *welcomeProps) tea.Cmd {
 	c.filterInput.Focus()
 
 	c.sortedGameNames = make([]string, 0)
-	for _, game := range app.config.Games {
+	for _, game := range config.Games {
 		for _, names := range game.Meta.Name {
 			c.sortedGameNames = append(c.sortedGameNames, names)
 			break

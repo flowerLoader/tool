@@ -11,12 +11,7 @@ import (
 	"github.com/londek/reactea"
 	"github.com/londek/reactea/router"
 	zone "github.com/lrstanley/bubblezone"
-
-	"github.com/flowerLoader/tool/pkg/cfg"
 )
-
-//go:embed main.json
-var MAIN_JSON []byte
 
 type App struct {
 	reactea.BasicComponent                         // AfterUpdate()
@@ -27,20 +22,10 @@ type App struct {
 	controls   *controlsFooterComponent
 
 	// State
-	config *cfg.Config
-	theme  map[string]string
+	theme map[string]string
 }
 
 func (app *App) Init(reactea.NoProps) tea.Cmd {
-	// State
-	var err error
-	app.config, err = cfg.LoadFromJSON(MAIN_JSON)
-	if err != nil || len(app.config.Games) == 0 {
-		panic("fatal: no games found in config (check main.json and rebuild) error: " + err.Error())
-	}
-
-	osInit()
-
 	// Components
 	app.controls = &controlsFooterComponent{}
 	app.controls.Init(&controlsFooterProps{})
