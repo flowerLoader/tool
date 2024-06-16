@@ -25,6 +25,9 @@ type welcomeComponent struct {
 	// Components
 	input textinput.Model
 
+	// Optimization for re-use
+	sortedGameNames []string
+
 	// State
 	cursorPos int
 	cursorMax int
@@ -40,14 +43,15 @@ func (c *welcomeComponent) Init(props *welcomeProps) tea.Cmd {
 	c.input.ShowSuggestions = true
 	c.input.Width = 30
 
-	gameNames := make([]string, len(app.config.Games))
-	for i, game := range app.config.Games {
+	c.sortedGameNames = make([]string, 0)
+	for _, game := range app.config.Games {
 		for _, names := range game.Meta.Name {
-			gameNames[i] = names
+			c.sortedGameNames = append(c.sortedGameNames, names)
 			break
 		}
 	}
-	c.input.SetSuggestions(gameNames)
+	slices.Sort(c.sortedGameNames)
+	c.input.SetSuggestions(c.sortedGameNames)
 
 	return tea.Batch(
 		textinput.Blink,
@@ -125,19 +129,9 @@ func (c *welcomeComponent) handleSubmit() tea.Cmd {
 func (c *welcomeComponent) inputAutocomplete(text string) string {
 	text = strings.ToLower(strings.TrimSpace(text))
 
-	for _, game := range app.config.Games {
-		// sort by locale
-		sorted := make([]string, 0, len(game.Meta.Name))
-		for locale := range game.Meta.Name {
-			sorted = append(sorted, locale)
-		}
-
-		slices.Sort(sorted)
-		for _, locale := range sorted {
-			name := game.Meta.Name[locale]
-			if strings.Contains(strings.ToLower(name), text) {
-				return name
-			}
+	for _, name := range c.sortedGameNames {
+		if strings.Contains(strings.ToLower(name), text) {
+			return name
 		}
 	}
 
