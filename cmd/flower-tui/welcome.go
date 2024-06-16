@@ -212,6 +212,8 @@ func (c *welcomeComponent) Render(width, height int) string {
 		BorderForeground(ColorPrimaryMain).
 		Border(lipgloss.RoundedBorder(), true)
 
+	c.input.Width = usableWidth - 36
+
 	var sb strings.Builder
 	sb.WriteString(lipgloss.JoinVertical(
 		lipgloss.Top,
