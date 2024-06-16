@@ -49,6 +49,10 @@ func (app *App) Init(reactea.NoProps) tea.Cmd {
 			component := &welcomeComponent{}
 			return component, component.Init(&welcomeProps{})
 		},
+		"settings": func(router.Params) (reactea.SomeComponent, tea.Cmd) {
+			component := &settingsComponent{}
+			return component, component.Init(&settingsProps{})
+		},
 	})
 }
 
