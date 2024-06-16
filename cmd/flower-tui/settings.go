@@ -11,14 +11,9 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 )
 
-type settingsProps struct {
-	getThemeColor func(string) string
-	setThemeColor func(string, string)
-}
-
 type settingsComponent struct {
 	reactea.BasicComponent
-	reactea.BasicPropfulComponent[*settingsProps]
+	reactea.BasicPropfulComponent[reactea.NoProps]
 
 	// Components
 	borderColor    FormField
@@ -32,24 +27,12 @@ type settingsComponent struct {
 	cursorMax int
 }
 
-func (c *settingsComponent) Init(props *settingsProps) tea.Cmd {
-	c.UpdateProps(props)
-	getThemeColor := props.getThemeColor
-
-	val := getThemeColor("Border")
-	c.borderColor = NewFormField("Border", "#", "(default: 103)", val)
-
-	val = getThemeColor("Primary")
-	c.primaryColor = NewFormField("Primary", "#", "(default: 176)", val)
-
-	val = getThemeColor("Secondary")
-	c.secondaryColor = NewFormField("Secondary", "#", "(default: 96)", val)
-
-	val = getThemeColor("Disabled")
-	c.disabledColor = NewFormField("Disabled", "#", "(default: 243)", val)
-
-	val = getThemeColor("Error")
-	c.errorColor = NewFormField("Error", "#", "(default: 9)", val)
+func (c *settingsComponent) Init() tea.Cmd {
+	c.borderColor = NewFormField("Border", "#", "(default: 103)", theme.Border.Foreground)
+	c.primaryColor = NewFormField("Primary", "#", "(default: 176)", theme.Primary.Foreground)
+	c.secondaryColor = NewFormField("Secondary", "#", "(default: 96)", theme.Secondary.Foreground)
+	c.disabledColor = NewFormField("Disabled", "#", "(default: 243)", theme.Disabled.Foreground)
+	c.errorColor = NewFormField("Error", "#", "(default: 9)", theme.Error.Foreground)
 
 	c.setCursorPos(0)
 
@@ -102,35 +85,20 @@ func (c *settingsComponent) Update(msg tea.Msg) tea.Cmd {
 
 	switch c.cursorPos {
 	case 0:
-		color := c.borderColor.Value()
 		c.borderColor, cmd = c.borderColor.Update(msg)
-		if newColor := c.borderColor.Value(); color != newColor {
-			cmds = append(cmds, c.setThemeColor("Border", newColor))
-		}
+		theme.Border.Foreground = c.borderColor.Value()
 	case 1:
-		color := c.primaryColor.Value()
 		c.primaryColor, cmd = c.primaryColor.Update(msg)
-		if newColor := c.primaryColor.Value(); color != newColor {
-			cmds = append(cmds, c.setThemeColor("Primary", newColor))
-		}
+		theme.Primary.Foreground = c.primaryColor.Value()
 	case 2:
-		color := c.secondaryColor.Value()
 		c.secondaryColor, cmd = c.secondaryColor.Update(msg)
-		if newColor := c.secondaryColor.Value(); color != newColor {
-			cmds = append(cmds, c.setThemeColor("Secondary", newColor))
-		}
+		theme.Secondary.Foreground = c.secondaryColor.Value()
 	case 3:
-		color := c.disabledColor.Value()
 		c.disabledColor, cmd = c.disabledColor.Update(msg)
-		if newColor := c.disabledColor.Value(); color != newColor {
-			cmds = append(cmds, c.setThemeColor("Disabled", newColor))
-		}
+		theme.Disabled.Foreground = c.disabledColor.Value()
 	case 4:
-		color := c.errorColor.Value()
 		c.errorColor, cmd = c.errorColor.Update(msg)
-		if newColor := c.errorColor.Value(); color != newColor {
-			cmds = append(cmds, c.setThemeColor("Error", newColor))
-		}
+		theme.Error.Foreground = c.errorColor.Value()
 	}
 	if cmd != nil {
 		cmds = append(cmds, cmd)
@@ -160,13 +128,13 @@ func (c *settingsComponent) renderCursor(pos int, after string) string {
 
 	elements := make([]string, 1)
 	if c.cursorPos == pos {
-		elements[0] = ColorPrimary.Render(" → ")
-		elements = append(elements, ColorPrimary.Render(" "))
-		elements = append(elements, ColorPrimary.Render(after))
+		elements[0] = theme.Gloss(PrimaryStyle).Render(" → ")
+		elements = append(elements, theme.Gloss(PrimaryStyle).Render(" "))
+		elements = append(elements, theme.Gloss(PrimaryStyle).Render(after))
 	} else {
-		elements[0] = ColorDisabled.Render("   ")
-		elements = append(elements, ColorDisabled.Render(" "))
-		elements = append(elements, ColorDisabled.Render(after))
+		elements[0] = theme.Gloss(DefaultStyle).Render("   ")
+		elements = append(elements, theme.Gloss(DefaultStyle).Render(" "))
+		elements = append(elements, theme.Gloss(DefaultStyle).Render(after))
 	}
 
 	return zone.Mark(
@@ -191,58 +159,51 @@ func (c *settingsComponent) setCursorPos(pos int) {
 	//
 
 	if c.cursorPos == c.cursorMax {
-		c.borderColor.TextStyle = ColorDisabled
-		c.primaryColor.TextStyle = ColorDisabled
-		c.secondaryColor.TextStyle = ColorDisabled
-		c.disabledColor.TextStyle = ColorDisabled
-		c.errorColor.TextStyle = ColorDisabled
+		c.borderColor.TextStyle = theme.Gloss(DefaultStyle)
+		c.primaryColor.TextStyle = theme.Gloss(DefaultStyle)
+		c.secondaryColor.TextStyle = theme.Gloss(DefaultStyle)
+		c.disabledColor.TextStyle = theme.Gloss(DefaultStyle)
+		c.errorColor.TextStyle = theme.Gloss(DefaultStyle)
 	}
 
 	if c.cursorPos == 0 {
-		c.borderColor.TextStyle = ColorPrimary
+		c.borderColor.TextStyle = theme.Gloss(PrimaryStyle)
 		c.borderColor.Focus()
 	} else {
-		c.borderColor.TextStyle = ColorDisabled
+		c.borderColor.TextStyle = theme.Gloss(DefaultStyle)
 		c.borderColor.Blur()
 	}
 
 	if c.cursorPos == 1 {
-		c.primaryColor.TextStyle = ColorPrimary
+		c.primaryColor.TextStyle = theme.Gloss(PrimaryStyle)
 		c.primaryColor.Focus()
 	} else {
-		c.primaryColor.TextStyle = ColorDisabled
+		c.primaryColor.TextStyle = theme.Gloss(DefaultStyle)
 		c.primaryColor.Blur()
 	}
 
 	if c.cursorPos == 2 {
-		c.secondaryColor.TextStyle = ColorPrimary
+		c.secondaryColor.TextStyle = theme.Gloss(PrimaryStyle)
 		c.secondaryColor.Focus()
 	} else {
-		c.secondaryColor.TextStyle = ColorDisabled
+		c.secondaryColor.TextStyle = theme.Gloss(DefaultStyle)
 		c.secondaryColor.Blur()
 	}
 
 	if c.cursorPos == 3 {
-		c.disabledColor.TextStyle = ColorPrimary
+		c.disabledColor.TextStyle = theme.Gloss(PrimaryStyle)
 		c.disabledColor.Focus()
 	} else {
-		c.disabledColor.TextStyle = ColorDisabled
+		c.disabledColor.TextStyle = theme.Gloss(DefaultStyle)
 		c.disabledColor.Blur()
 	}
 
 	if c.cursorPos == 4 {
-		c.errorColor.TextStyle = ColorPrimary
+		c.errorColor.TextStyle = theme.Gloss(PrimaryStyle)
 		c.errorColor.Focus()
 	} else {
-		c.errorColor.TextStyle = ColorDisabled
+		c.errorColor.TextStyle = theme.Gloss(DefaultStyle)
 		c.errorColor.Blur()
-	}
-}
-
-func (c *settingsComponent) setThemeColor(key, value string) tea.Cmd {
-	return func() tea.Msg {
-		c.Props().setThemeColor(key, value)
-		return nil
 	}
 }
 
@@ -252,7 +213,7 @@ func (c *settingsComponent) Render(width, height int) string {
 		spacing = (height - minHeight) / spacingRatio
 	}
 
-	var innerBoxStyle = ColorBorder.
+	var innerBoxStyle = theme.Gloss(BorderStyle).
 		Width(width-10).
 		Margin(spacing, 4, 0).
 		Padding(spacing/2, 0).

@@ -16,18 +16,17 @@ func (c *controlsFooterComponent) Init() tea.Cmd {
 }
 
 func (c *controlsFooterComponent) Render(width, height int) string {
-	dot := ColorDisabled.Render(" • ")
-	space := ColorDisabled.Render(" ")
+	dot := theme.Gloss(DisabledStyle).Render(" • ")
+	space := theme.Gloss(DisabledStyle).Render(" ")
 
-	return lipgloss.JoinVertical(
-		lipgloss.Top,
+	return theme.Gloss(DefaultStyle).Width(width).Render(
 		lipgloss.JoinHorizontal(
 			lipgloss.Left, space,
-			ColorPrimary.Render("Ctrl+C"), space, ColorSecondary.Render("Quit"),
+			theme.Gloss(PrimaryStyle).Render("Ctrl+C"), space, theme.Gloss(SecondaryStyle).Render("Quit"),
 			dot,
-			ColorPrimary.Render("↑↓"), space, ColorSecondary.Render("Navigate"),
+			theme.Gloss(PrimaryStyle).Render("↑↓"), space, theme.Gloss(SecondaryStyle).Render("Navigate"),
 			dot,
-			ColorPrimary.Render("Enter"), space, ColorSecondary.Render("Select Highlighted Option"),
+			theme.Gloss(PrimaryStyle).Render("Enter"), space, theme.Gloss(SecondaryStyle).Render("Select Highlighted Option"),
 		),
 	)
 }

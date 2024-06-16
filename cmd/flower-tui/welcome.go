@@ -91,10 +91,10 @@ func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 
 	if prevPos != c.cursorPos {
 		if c.cursorPos == 0 {
-			c.filterInput.TextStyle = ColorPrimary
+			c.filterInput.TextStyle = theme.Gloss(PrimaryStyle)
 			cmds = append(cmds, c.filterInput.Focus())
 		} else {
-			c.filterInput.TextStyle = ColorDisabled
+			c.filterInput.TextStyle = theme.Gloss(DefaultStyle)
 			c.filterInput.Blur()
 		}
 	}
@@ -138,13 +138,13 @@ func (c *welcomeComponent) renderCursor(pos int, after string) string {
 
 	elements := make([]string, 1)
 	if c.cursorPos == pos {
-		elements[0] = ColorPrimary.Render(" → ")
-		elements = append(elements, ColorPrimary.Render(" "))
-		elements = append(elements, ColorPrimary.Render(after))
+		elements[0] = theme.Gloss(PrimaryStyle).Render(" → ")
+		elements = append(elements, theme.Gloss(PrimaryStyle).Render(" "))
+		elements = append(elements, theme.Gloss(PrimaryStyle).Render(after))
 	} else {
-		elements[0] = ColorDisabled.Render("   ")
-		elements = append(elements, ColorDisabled.Render(" "))
-		elements = append(elements, ColorDisabled.Render(after))
+		elements[0] = theme.Gloss(DefaultStyle).Render("   ")
+		elements = append(elements, theme.Gloss(DefaultStyle).Render(" "))
+		elements = append(elements, theme.Gloss(DefaultStyle).Render(after))
 	}
 
 	return zone.Mark(
@@ -159,18 +159,18 @@ func (c *welcomeComponent) renderInput() string {
 	}
 
 	if guess := c.inputAutocomplete(c.filterInput.Value()); guess == "" {
-		elements = append(elements, ColorError.Render(
+		elements = append(elements, theme.Gloss(ErrorStyle).Render(
 			"Game not found. Please check your spelling and try again.",
 		))
 	} else {
-		elements = append(elements, ColorPrimary.Render(
+		elements = append(elements, theme.Gloss(SecondaryStyle).Render(
 			fmt.Sprintf("Press Enter to select: %s", guess),
 		))
 	}
 
 	return lipgloss.NewStyle().
 		Width(c.filterInput.Width).
-		Background(lipgloss.Color(ANSIBackground)).
+		Background(lipgloss.Color(theme.Default.Background)).
 		Render(lipgloss.JoinVertical(lipgloss.Left, elements...))
 }
 
@@ -192,7 +192,7 @@ func (c *welcomeComponent) Render(width, height int) string {
 		spacing = (height - minHeight) / spacingRatio
 	}
 
-	var innerBoxStyle = ColorBorder.
+	var innerBoxStyle = theme.Gloss(BorderStyle).
 		Width(width-10).
 		Margin(spacing, 4, 0).
 		Padding(spacing/2, 0).
