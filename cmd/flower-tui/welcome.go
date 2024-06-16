@@ -5,7 +5,6 @@ import (
 	"runtime"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -23,7 +22,7 @@ type welcomeComponent struct {
 	reactea.BasicPropfulComponent[welcomeProps]
 
 	// Components
-	input textinput.Model
+	filterInput FormField
 
 	// Optimization for re-use
 	sortedGameNames []string
@@ -34,14 +33,9 @@ type welcomeComponent struct {
 }
 
 func (c *welcomeComponent) Init(props *welcomeProps) tea.Cmd {
-	c.input = textinput.New()
-	c.input.CharLimit = 250
-	c.input.Cursor.BlinkSpeed = time.Second / 3
-	c.input.Placeholder = "Type to filter games..."
-	c.input.Focus()
-	c.input.Prompt = ""
-	c.input.ShowSuggestions = true
-	c.input.Width = 30
+	c.filterInput = NewFormField("", "? ", "Type to filter games...", "")
+	c.filterInput.ShowSuggestions = true
+	c.filterInput.Focus()
 
 	c.sortedGameNames = make([]string, 0)
 	for _, game := range app.config.Games {
@@ -51,17 +45,17 @@ func (c *welcomeComponent) Init(props *welcomeProps) tea.Cmd {
 		}
 	}
 	slices.Sort(c.sortedGameNames)
-	c.input.SetSuggestions(c.sortedGameNames)
+	c.filterInput.SetSuggestions(c.sortedGameNames)
 
 	return tea.Batch(
 		textinput.Blink,
-		c.input.Cursor.SetMode(cursor.CursorBlink),
+		c.filterInput.Cursor.SetMode(cursor.CursorBlink),
 	)
 }
 
 func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, 1)
-	c.input, cmds[0] = c.input.Update(msg)
+	c.filterInput, cmds[0] = c.filterInput.Update(msg)
 
 	prevPos := c.cursorPos
 	switch msg := msg.(type) {
@@ -98,11 +92,11 @@ func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 
 	if prevPos != c.cursorPos {
 		if c.cursorPos == 0 {
-			c.input.TextStyle = TextMain
-			cmds = append(cmds, c.input.Focus())
+			c.filterInput.TextStyle = TextMain
+			cmds = append(cmds, c.filterInput.Focus())
 		} else {
-			c.input.TextStyle = TextDisabled
-			c.input.Blur()
+			c.filterInput.TextStyle = TextDisabled
+			c.filterInput.Blur()
 		}
 	}
 
@@ -165,10 +159,10 @@ func (c *welcomeComponent) renderCursor(pos int, after string) string {
 
 func (c *welcomeComponent) renderInput() string {
 	elements := []string{
-		c.input.View(),
+		c.filterInput.View(),
 	}
 
-	if guess := c.inputAutocomplete(c.input.Value()); guess == "" {
+	if guess := c.inputAutocomplete(c.filterInput.Value()); guess == "" {
 		elements = append(elements, TextError.Render(
 			"Game not found. Please check your spelling and try again.",
 		))
@@ -212,7 +206,7 @@ func (c *welcomeComponent) Render(width, height int) string {
 		BorderForeground(ColorPrimaryMain).
 		Border(lipgloss.RoundedBorder(), true)
 
-	c.input.Width = usableWidth - 36
+	c.filterInput.Width = usableWidth - 36
 
 	var sb strings.Builder
 	sb.WriteString(lipgloss.JoinVertical(
