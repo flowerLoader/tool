@@ -4,6 +4,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/londek/reactea"
 	"github.com/londek/reactea/router"
+
+	zone "github.com/lrstanley/bubblezone"
 )
 
 const (
@@ -14,8 +16,9 @@ const (
 var app *App
 
 func main() {
+	zone.NewGlobal()
 	app = &App{mainRouter: router.New()}
-	program := reactea.NewProgram(app, tea.WithAltScreen())
+	program := reactea.NewProgram(app, tea.WithAltScreen(), tea.WithMouseCellMotion())
 	if _, err := program.Run(); err != nil {
 		panic(err)
 	}

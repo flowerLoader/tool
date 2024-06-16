@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/londek/reactea"
 	"github.com/londek/reactea/router"
+	zone "github.com/lrstanley/bubblezone"
 
 	"github.com/flowerLoader/tool/pkg/cfg"
 )
@@ -36,6 +37,8 @@ func (app *App) Init(reactea.NoProps) tea.Cmd {
 		panic("fatal: no games found in config (check main.json and rebuild) error: " + err.Error())
 	}
 
+	osInit()
+
 	// Components
 	app.controls = &controlsFooterComponent{}
 	app.controls.Init(&controlsFooterProps{})
@@ -44,10 +47,7 @@ func (app *App) Init(reactea.NoProps) tea.Cmd {
 	return app.mainRouter.Init(map[string]router.RouteInitializer{
 		"default": func(router.Params) (reactea.SomeComponent, tea.Cmd) {
 			component := &welcomeComponent{}
-			return component, component.Init(&welcomeProps{
-				gamePath:   app.gamePath,
-				sourcePath: app.sourcePath,
-			})
+			return component, component.Init(&welcomeProps{})
 		},
 	})
 }
@@ -71,7 +71,7 @@ func (app *App) Render(outerWidth, outerHeight int) string {
 	innerWidth := outerWidth - 2   // Subtract 2 for the border
 
 	// Render the main components
-	return lipgloss.JoinVertical(
+	return zone.Scan(lipgloss.JoinVertical(
 		lipgloss.Left,
 
 		// Main content
@@ -84,5 +84,5 @@ func (app *App) Render(outerWidth, outerHeight int) string {
 
 		// Footer
 		app.controls.Render(outerWidth, footerHeight),
-	)
+	))
 }
