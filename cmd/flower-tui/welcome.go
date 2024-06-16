@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 
@@ -11,11 +12,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/londek/reactea"
+	zone "github.com/lrstanley/bubblezone"
 )
 
 type welcomeProps struct {
-	gamePath   string
-	sourcePath string
 }
 
 type welcomeComponent struct {
@@ -33,15 +33,25 @@ type welcomeComponent struct {
 func (c *welcomeComponent) Init(props *welcomeProps) tea.Cmd {
 	c.input = textinput.New()
 	c.input.CharLimit = 250
-	c.input.Cursor.BlinkSpeed = time.Second / 2
+	c.input.Cursor.BlinkSpeed = time.Second / 3
 	c.input.Placeholder = "Type to filter games..."
+	c.input.Focus()
 	c.input.Prompt = ""
+	c.input.ShowSuggestions = true
 	c.input.Width = 30
+
+	gameNames := make([]string, len(app.config.Games))
+	for i, game := range app.config.Games {
+		for _, names := range game.Meta.Name {
+			gameNames[i] = names
+			break
+		}
+	}
+	c.input.SetSuggestions(gameNames)
 
 	return tea.Batch(
 		textinput.Blink,
 		c.input.Cursor.SetMode(cursor.CursorBlink),
-		c.input.Focus(),
 	)
 }
 
@@ -53,19 +63,34 @@ func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "up":
-			c.cursorPos--
-			if c.cursorPos < 0 {
-				c.cursorPos = 0
-			}
+			c.setCursorPos(c.cursorPos - 1)
 
 		case "down":
-			c.cursorPos++
-			if c.cursorPos > c.cursorMax {
-				c.cursorPos = c.cursorMax
-			}
+			c.setCursorPos(c.cursorPos + 1)
 
 		case "enter":
 			cmds = append(cmds, c.handleSubmit())
+		}
+
+	case tea.MouseMsg:
+		if msg.Button == tea.MouseButtonWheelUp {
+			c.cursorPos--
+			break
+		}
+
+		if msg.Button == tea.MouseButtonWheelDown {
+			c.cursorPos++
+			break
+		}
+
+		for i := 0; i <= c.cursorMax; i++ {
+			if zone.Get(fmt.Sprintf("cursor%d", i)).InBounds(msg) {
+				c.cursorPos = i
+				if msg.Action == tea.MouseActionRelease || msg.Button == tea.MouseButtonLeft {
+					cmds = append(cmds, c.handleSubmit())
+				}
+				break
+			}
 		}
 	}
 
@@ -97,22 +122,85 @@ func (c *welcomeComponent) handleSubmit() tea.Cmd {
 	return nil
 }
 
+const minHeight = 18   // # of terminal lines reserved for header and footer
+const spacingRatio = 4 // # of terminal lines per 1 spacing line
+
 func (c *welcomeComponent) renderCursor(pos int, after string) string {
 	if c.cursorMax < pos {
 		c.cursorMax = pos
 	}
 
+	elements := make([]string, 1)
 	if c.cursorPos == pos {
-		return TextMain.
+		elements[0] = TextMain.
 			Background(lipgloss.Color("234")).
-			Render("  → " + after)
+			Render(" → ")
+	} else {
+		elements[0] = TextDisabled.
+			Render("   ")
 	}
 
-	return TextDisabled.Render("    " + after)
+	elements = append(elements, after)
+	return zone.Mark(
+		fmt.Sprintf("cursor%d", pos),
+		lipgloss.JoinHorizontal(lipgloss.Left, elements...),
+	)
 }
 
-const minHeight = 18   // # of terminal lines reserved for header and footer
-const spacingRatio = 4 // # of terminal lines per 1 spacing line
+func (c *welcomeComponent) renderInput() string {
+	autocomplete := func(text string) string {
+		text = strings.ToLower(strings.TrimSpace(text))
+
+		for _, game := range app.config.Games {
+			// sort by locale
+			sorted := make([]string, 0, len(game.Meta.Name))
+			for locale := range game.Meta.Name {
+				sorted = append(sorted, locale)
+			}
+
+			slices.Sort(sorted)
+			for _, locale := range sorted {
+				name := game.Meta.Name[locale]
+				if strings.Contains(strings.ToLower(name), text) {
+					return name
+				}
+			}
+		}
+
+		return ""
+	}
+
+	elements := []string{
+		c.input.View(),
+	}
+
+	if guess := autocomplete(c.input.Value()); guess == "" {
+		elements = append(elements, TextError.Render(
+			"Game not found. Please check your spelling and try again.",
+		))
+	} else {
+		elements = append(elements, TextMain.Render(
+			fmt.Sprintf("Press Enter to select: %s", guess),
+		))
+	}
+
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		elements...,
+	)
+}
+
+func (c *welcomeComponent) setCursorPos(pos int) {
+	if pos < 0 {
+		pos = 0
+	}
+
+	if pos > c.cursorMax {
+		pos = c.cursorMax
+	}
+
+	c.cursorPos = pos
+}
 
 func (c *welcomeComponent) Render(width, height int) string {
 	usableHeight := height - 2
@@ -148,7 +236,7 @@ func (c *welcomeComponent) Render(width, height int) string {
 
 		// Filter Input Entry
 		innerBoxStyle.Render(
-			c.renderCursor(0, c.input.View()),
+			c.renderCursor(0, c.renderInput()),
 		),
 
 		// Help Text
