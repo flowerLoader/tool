@@ -59,6 +59,7 @@ func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, 1)
 	c.input, cmds[0] = c.input.Update(msg)
 
+	prevPos := c.cursorPos
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -73,14 +74,11 @@ func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 		}
 
 	case tea.MouseMsg:
-		if msg.Button == tea.MouseButtonWheelUp {
-			c.cursorPos--
-			break
-		}
-
-		if msg.Button == tea.MouseButtonWheelDown {
-			c.cursorPos++
-			break
+		switch msg.Button {
+		case tea.MouseButtonWheelUp:
+			c.setCursorPos(c.cursorPos - 1)
+		case tea.MouseButtonWheelDown:
+			c.setCursorPos(c.cursorPos + 1)
 		}
 
 		for i := 0; i <= c.cursorMax; i++ {
@@ -94,12 +92,14 @@ func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 		}
 	}
 
-	if c.cursorPos == 0 {
-		c.input.TextStyle = TextMain
-		cmds = append(cmds, c.input.Focus())
-	} else {
-		c.input.TextStyle = TextDisabled
-		c.input.Blur()
+	if prevPos != c.cursorPos {
+		if c.cursorPos == 0 {
+			c.input.TextStyle = TextMain
+			cmds = append(cmds, c.input.Focus())
+		} else {
+			c.input.TextStyle = TextDisabled
+			c.input.Blur()
+		}
 	}
 
 	return tea.Batch(cmds...)
