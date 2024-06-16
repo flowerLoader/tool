@@ -16,7 +16,7 @@ func osInit() {
 	// }
 
 	setCloseButtonEnabled(false)
-	setConsoleFontSize(32)
+	setConsoleFontSize(27)
 }
 
 var (
