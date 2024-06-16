@@ -95,10 +95,10 @@ func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 
 	if prevPos != c.cursorPos {
 		if c.cursorPos == 0 {
-			c.filterInput.TextStyle = TextMain
+			c.filterInput.TextStyle = ColorPrimary
 			cmds = append(cmds, c.filterInput.Focus())
 		} else {
-			c.filterInput.TextStyle = TextDisabled
+			c.filterInput.TextStyle = ColorDisabled
 			c.filterInput.Blur()
 		}
 	}
@@ -142,11 +142,11 @@ func (c *welcomeComponent) renderCursor(pos int, after string) string {
 
 	elements := make([]string, 1)
 	if c.cursorPos == pos {
-		elements[0] = TextMain.
+		elements[0] = ColorPrimary.
 			Background(lipgloss.Color("234")).
 			Render(" → ")
 	} else {
-		elements[0] = TextDisabled.
+		elements[0] = ColorDisabled.
 			Render("   ")
 	}
 
@@ -163,11 +163,11 @@ func (c *welcomeComponent) renderInput() string {
 	}
 
 	if guess := c.inputAutocomplete(c.filterInput.Value()); guess == "" {
-		elements = append(elements, TextError.Render(
+		elements = append(elements, ColorError.Render(
 			"Game not found. Please check your spelling and try again.",
 		))
 	} else {
-		elements = append(elements, TextMain.Render(
+		elements = append(elements, ColorPrimary.Render(
 			fmt.Sprintf("Press Enter to select: %s", guess),
 		))
 	}
@@ -199,11 +199,10 @@ func (c *welcomeComponent) Render(width, height int) string {
 		spacing = (usableHeight - minHeight) / spacingRatio
 	}
 
-	var innerBoxStyle = lipgloss.NewStyle().
+	var innerBoxStyle = ColorBorder.
 		Width(usableWidth-8).
 		Margin(spacing, 4, 0).
 		Padding(spacing/2, 0).
-		BorderForeground(ColorPrimaryMain).
 		Border(lipgloss.RoundedBorder(), true)
 
 	c.filterInput.Width = usableWidth - 36
@@ -219,9 +218,9 @@ func (c *welcomeComponent) Render(width, height int) string {
 			AlignHorizontal(lipgloss.Center).
 			Render(fmt.Sprintf(
 				"%s %s\n%s",
-				TextMain.Bold(true).Render(APPNAME),
-				TextDark.Render(fmt.Sprintf("v%s", APPVERSION)),
-				TextDark.Render(fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)),
+				ColorPrimary.Bold(true).Render(APPNAME),
+				ColorSecondary.Render(fmt.Sprintf("v%s", APPVERSION)),
+				ColorSecondary.Render(fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)),
 			)),
 
 		// Filter Input Entry

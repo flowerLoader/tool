@@ -19,17 +19,17 @@ func (c *controlsFooterComponent) Init(props *controlsFooterProps) tea.Cmd {
 }
 
 func (c *controlsFooterComponent) Render(width, height int) string {
-	dot := TextDisabled.Render(" • ")
+	dot := ColorDisabled.Render(" • ")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Top,
 		lipgloss.JoinHorizontal(
 			lipgloss.Left, " ",
-			TextMain.Render("Ctrl+C"), " ", TextDark.Render("Quit"),
+			ColorPrimary.Render("Ctrl+C"), " ", ColorSecondary.Render("Quit"),
 			dot,
-			TextMain.Render("↑↓"), " ", TextDark.Render("Navigate"),
+			ColorPrimary.Render("↑↓"), " ", ColorSecondary.Render("Navigate"),
 			dot,
-			TextMain.Render("Enter"), " ", TextDark.Render("Select Highlighted Option"),
+			ColorPrimary.Render("Enter"), " ", ColorSecondary.Render("Select Highlighted Option"),
 		),
 	)
 }

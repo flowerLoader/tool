@@ -13,17 +13,20 @@ import (
 )
 
 type settingsProps struct {
+	getThemeColor func(string) string
+	setThemeColor func(string, string)
 }
 
 type settingsComponent struct {
 	reactea.BasicComponent
-	reactea.BasicPropfulComponent[settingsProps]
+	reactea.BasicPropfulComponent[*settingsProps]
 
 	// Components
-	primaryMainColor FormField
-	primaryDarkColor FormField
-	disabledColor    FormField
-	errorColor       FormField
+	borderColor    FormField
+	primaryColor   FormField
+	secondaryColor FormField
+	disabledColor  FormField
+	errorColor     FormField
 
 	// State
 	cursorPos int
@@ -31,16 +34,32 @@ type settingsComponent struct {
 }
 
 func (c *settingsComponent) Init(props *settingsProps) tea.Cmd {
-	c.primaryMainColor = NewFormField("Primary Main Color", "#", "(default: 176)", "")
-	c.primaryDarkColor = NewFormField("Primary Dark Color", "#", "(default: 96)", "")
-	c.disabledColor = NewFormField("Disabled Color", "#", "(default: 243)", "")
-	c.errorColor = NewFormField("Error Color", "#", "(default: 9)", "")
+	c.UpdateProps(props)
+	getThemeColor := props.getThemeColor
+
+	val := getThemeColor("Border")
+	c.borderColor = NewFormField("Border", "#", "(default: 103)", val)
+
+	val = getThemeColor("Primary")
+	c.primaryColor = NewFormField("Primary", "#", "(default: 176)", val)
+
+	val = getThemeColor("Secondary")
+	c.secondaryColor = NewFormField("Secondary", "#", "(default: 96)", val)
+
+	val = getThemeColor("Disabled")
+	c.disabledColor = NewFormField("Disabled", "#", "(default: 243)", val)
+
+	val = getThemeColor("Error")
+	c.errorColor = NewFormField("Error", "#", "(default: 9)", val)
+
+	c.setCursorPos(0)
 
 	return tea.Batch(
 		textinput.Blink,
-		c.primaryMainColor.Focus(),
-		c.primaryMainColor.Cursor.SetMode(cursor.CursorBlink),
-		c.primaryDarkColor.Cursor.SetMode(cursor.CursorBlink),
+		c.borderColor.Focus(),
+		c.borderColor.Cursor.SetMode(cursor.CursorBlink),
+		c.primaryColor.Cursor.SetMode(cursor.CursorBlink),
+		c.secondaryColor.Cursor.SetMode(cursor.CursorBlink),
 		c.disabledColor.Cursor.SetMode(cursor.CursorBlink),
 		c.errorColor.Cursor.SetMode(cursor.CursorBlink),
 	)
@@ -50,7 +69,6 @@ func (c *settingsComponent) Update(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, 0)
 	var cmd tea.Cmd
 
-	prevPos := c.cursorPos
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -85,50 +103,38 @@ func (c *settingsComponent) Update(msg tea.Msg) tea.Cmd {
 
 	switch c.cursorPos {
 	case 0:
-		c.primaryMainColor, cmd = c.primaryMainColor.Update(msg)
+		color := c.borderColor.Value()
+		c.borderColor, cmd = c.borderColor.Update(msg)
+		if newColor := c.borderColor.Value(); color != newColor {
+			cmds = append(cmds, c.setThemeColor("Border", newColor))
+		}
 	case 1:
-		c.primaryDarkColor, cmd = c.primaryDarkColor.Update(msg)
+		color := c.primaryColor.Value()
+		c.primaryColor, cmd = c.primaryColor.Update(msg)
+		if newColor := c.primaryColor.Value(); color != newColor {
+			cmds = append(cmds, c.setThemeColor("Primary", newColor))
+		}
 	case 2:
-		c.disabledColor, cmd = c.disabledColor.Update(msg)
+		color := c.secondaryColor.Value()
+		c.secondaryColor, cmd = c.secondaryColor.Update(msg)
+		if newColor := c.secondaryColor.Value(); color != newColor {
+			cmds = append(cmds, c.setThemeColor("Secondary", newColor))
+		}
 	case 3:
+		color := c.disabledColor.Value()
+		c.disabledColor, cmd = c.disabledColor.Update(msg)
+		if newColor := c.disabledColor.Value(); color != newColor {
+			cmds = append(cmds, c.setThemeColor("Disabled", newColor))
+		}
+	case 4:
+		color := c.errorColor.Value()
 		c.errorColor, cmd = c.errorColor.Update(msg)
+		if newColor := c.errorColor.Value(); color != newColor {
+			cmds = append(cmds, c.setThemeColor("Error", newColor))
+		}
 	}
 	if cmd != nil {
 		cmds = append(cmds, cmd)
-	}
-
-	if prevPos != c.cursorPos {
-		if c.cursorPos == 0 {
-			c.primaryMainColor.TextStyle = TextMain
-			cmds = append(cmds, c.primaryMainColor.Focus())
-		} else {
-			c.primaryMainColor.TextStyle = TextDisabled
-			c.primaryMainColor.Blur()
-		}
-
-		if c.cursorPos == 1 {
-			c.primaryDarkColor.TextStyle = TextMain
-			cmds = append(cmds, c.primaryDarkColor.Focus())
-		} else {
-			c.primaryDarkColor.TextStyle = TextDisabled
-			c.primaryDarkColor.Blur()
-		}
-
-		if c.cursorPos == 2 {
-			c.disabledColor.TextStyle = TextMain
-			cmds = append(cmds, c.disabledColor.Focus())
-		} else {
-			c.disabledColor.TextStyle = TextDisabled
-			c.disabledColor.Blur()
-		}
-
-		if c.cursorPos == 3 {
-			c.errorColor.TextStyle = TextMain
-			cmds = append(cmds, c.errorColor.Focus())
-		} else {
-			c.errorColor.TextStyle = TextDisabled
-			c.errorColor.Blur()
-		}
 	}
 
 	return tea.Batch(cmds...)
@@ -136,11 +142,11 @@ func (c *settingsComponent) Update(msg tea.Msg) tea.Cmd {
 
 func (c *settingsComponent) handleSubmit() tea.Cmd {
 	switch c.cursorPos {
-	case 0: // Primary Main Color
-	case 1: // Primary Dark Color
-	case 2: // Disabled Color
-	case 3: // Error Color
-	case 4: // Save Changes
+	case 0: // Border Color
+	case 1: // Primary Color
+	case 2: // Secondary Color
+	case 3: // Disabled Color
+	case 4: // Error Color
 	case 5: // Back to Main Menu
 		reactea.SetCurrentRoute("default")
 	}
@@ -155,11 +161,11 @@ func (c *settingsComponent) renderCursor(pos int, after string) string {
 
 	elements := make([]string, 1)
 	if c.cursorPos == pos {
-		elements[0] = TextMain.
+		elements[0] = ColorPrimary.
 			Background(lipgloss.Color("234")).
 			Render(" → ")
 	} else {
-		elements[0] = TextDisabled.
+		elements[0] = ColorDisabled.
 			Render("   ")
 	}
 
@@ -180,6 +186,65 @@ func (c *settingsComponent) setCursorPos(pos int) {
 	}
 
 	c.cursorPos = pos
+
+	//
+	// Update styles according to cursor position
+	//
+
+	if c.cursorPos == c.cursorMax {
+		c.borderColor.TextStyle = ColorDisabled
+		c.primaryColor.TextStyle = ColorDisabled
+		c.secondaryColor.TextStyle = ColorDisabled
+		c.disabledColor.TextStyle = ColorDisabled
+		c.errorColor.TextStyle = ColorDisabled
+	}
+
+	if c.cursorPos == 0 {
+		c.borderColor.TextStyle = ColorPrimary
+		c.borderColor.Focus()
+	} else {
+		c.borderColor.TextStyle = ColorDisabled
+		c.borderColor.Blur()
+	}
+
+	if c.cursorPos == 1 {
+		c.primaryColor.TextStyle = ColorPrimary
+		c.primaryColor.Focus()
+	} else {
+		c.primaryColor.TextStyle = ColorDisabled
+		c.primaryColor.Blur()
+	}
+
+	if c.cursorPos == 2 {
+		c.secondaryColor.TextStyle = ColorPrimary
+		c.secondaryColor.Focus()
+	} else {
+		c.secondaryColor.TextStyle = ColorDisabled
+		c.secondaryColor.Blur()
+	}
+
+	if c.cursorPos == 3 {
+		c.disabledColor.TextStyle = ColorPrimary
+		c.disabledColor.Focus()
+	} else {
+		c.disabledColor.TextStyle = ColorDisabled
+		c.disabledColor.Blur()
+	}
+
+	if c.cursorPos == 4 {
+		c.errorColor.TextStyle = ColorPrimary
+		c.errorColor.Focus()
+	} else {
+		c.errorColor.TextStyle = ColorDisabled
+		c.errorColor.Blur()
+	}
+}
+
+func (c *settingsComponent) setThemeColor(key, value string) tea.Cmd {
+	return func() tea.Msg {
+		c.Props().setThemeColor(key, value)
+		return nil
+	}
 }
 
 func (c *settingsComponent) Render(width, height int) string {
@@ -191,11 +256,10 @@ func (c *settingsComponent) Render(width, height int) string {
 		spacing = (usableHeight - minHeight) / spacingRatio
 	}
 
-	var innerBoxStyle = lipgloss.NewStyle().
+	var innerBoxStyle = ColorBorder.
 		Width(usableWidth-8).
 		Margin(spacing, 4, 0).
 		Padding(spacing/2, 0).
-		BorderForeground(ColorPrimaryMain).
 		Border(lipgloss.RoundedBorder(), true)
 
 	// c.filterInput.Width = usableWidth - 36
@@ -211,25 +275,25 @@ func (c *settingsComponent) Render(width, height int) string {
 			AlignHorizontal(lipgloss.Center).
 			Render(fmt.Sprintf(
 				"%s %s\n%s",
-				TextMain.Bold(true).Render(APPNAME),
-				TextDark.Render(fmt.Sprintf("v%s", APPVERSION)),
-				TextDisabled.Render("Settings"),
+				ColorPrimary.Bold(true).Render(APPNAME),
+				ColorSecondary.Render(fmt.Sprintf("v%s", APPVERSION)),
+				ColorDisabled.Render("Settings"),
 			)),
 
 		// Input Entries
 		innerBoxStyle.Render(lipgloss.JoinVertical(
 			lipgloss.Left,
-			c.renderCursor(0, c.primaryMainColor.View()),
-			c.renderCursor(1, c.primaryDarkColor.View()),
-			c.renderCursor(2, c.disabledColor.View()),
-			c.renderCursor(3, c.errorColor.View()),
+			c.renderCursor(0, c.borderColor.View()),
+			c.renderCursor(1, c.primaryColor.View()),
+			c.renderCursor(2, c.secondaryColor.View()),
+			c.renderCursor(3, c.disabledColor.View()),
+			c.renderCursor(4, c.errorColor.View()),
 		)),
 
 		// Help Text
 		innerBoxStyle.Render(
 			lipgloss.JoinVertical(
 				lipgloss.Left,
-				c.renderCursor(4, TextDisabled.Render("No Changes to Save")),
 				c.renderCursor(5, "Back to Main Menu"),
 			),
 		),

@@ -5,13 +5,15 @@ import (
 )
 
 var (
-	ColorPrimaryMain = lipgloss.Color("176")
-	ColorPrimaryDark = lipgloss.Color("96")
-	ColorDisabled    = lipgloss.Color("243")
+	ANSIBorder    = "103"
+	ANSIPrimary   = "140"
+	ANSISecondary = "97"
+	ANSIDisabled  = "243"
+	ANSIError     = "160"
 
-	TextDark     = lipgloss.NewStyle().Foreground(ColorPrimaryDark)
-	TextDisabled = lipgloss.NewStyle().Foreground(ColorDisabled)
-	TextMain     = lipgloss.NewStyle().Foreground(ColorPrimaryMain)
-
-	TextError = lipgloss.NewStyle().Foreground(lipgloss.Color("9"))
+	ColorBorder    = lipgloss.NewStyle().BorderForeground(lipgloss.Color(ANSIBorder))
+	ColorPrimary   = lipgloss.NewStyle().Foreground(lipgloss.Color(ANSIPrimary))
+	ColorSecondary = lipgloss.NewStyle().Foreground(lipgloss.Color(ANSISecondary))
+	ColorDisabled  = lipgloss.NewStyle().Foreground(lipgloss.Color(ANSIDisabled))
+	ColorError     = lipgloss.NewStyle().Foreground(lipgloss.Color(ANSIError))
 )

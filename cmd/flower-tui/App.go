@@ -24,9 +24,8 @@ type App struct {
 	controls   *controlsFooterComponent
 
 	// State
-	config     *cfg.Config
-	gamePath   string
-	sourcePath string
+	config *cfg.Config
+	theme  map[string]string
 }
 
 func (app *App) Init(reactea.NoProps) tea.Cmd {
@@ -43,6 +42,13 @@ func (app *App) Init(reactea.NoProps) tea.Cmd {
 	app.controls = &controlsFooterComponent{}
 	app.controls.Init(&controlsFooterProps{})
 
+	app.theme = make(map[string]string)
+	app.theme["Border"] = ANSIBorder
+	app.theme["Primary"] = ANSIPrimary
+	app.theme["Secondary"] = ANSISecondary
+	app.theme["Disabled"] = ANSIDisabled
+	app.theme["Error"] = ANSIError
+
 	// Router
 	return app.mainRouter.Init(map[string]router.RouteInitializer{
 		"default": func(router.Params) (reactea.SomeComponent, tea.Cmd) {
@@ -51,7 +57,32 @@ func (app *App) Init(reactea.NoProps) tea.Cmd {
 		},
 		"settings": func(router.Params) (reactea.SomeComponent, tea.Cmd) {
 			component := &settingsComponent{}
-			return component, component.Init(&settingsProps{})
+			return component, component.Init(&settingsProps{
+				getThemeColor: func(key string) string {
+					return app.theme[key]
+				},
+				setThemeColor: func(key, value string) {
+					app.theme[key] = value
+
+					switch key {
+					case "Border":
+						ANSIBorder = value
+						ColorBorder = lipgloss.NewStyle().BorderForeground(lipgloss.Color(ANSIBorder))
+					case "Primary":
+						ANSIPrimary = value
+						ColorPrimary = lipgloss.NewStyle().Foreground(lipgloss.Color(ANSIPrimary))
+					case "Secondary":
+						ANSISecondary = value
+						ColorSecondary = lipgloss.NewStyle().Foreground(lipgloss.Color(ANSISecondary))
+					case "Disabled":
+						ANSIDisabled = value
+						ColorDisabled = lipgloss.NewStyle().Foreground(lipgloss.Color(ANSIDisabled))
+					case "Error":
+						ANSIError = value
+						ColorError = lipgloss.NewStyle().Foreground(lipgloss.Color(ANSIError))
+					}
+				},
+			})
 		},
 	})
 }
@@ -79,10 +110,9 @@ func (app *App) Render(outerWidth, outerHeight int) string {
 		lipgloss.Left,
 
 		// Main content
-		lipgloss.NewStyle().
+		ColorBorder.
 			Width(innerWidth).
 			Height(innerHeight).
-			BorderForeground(ColorPrimaryMain).
 			Border(lipgloss.DoubleBorder(), true).
 			Render(app.mainRouter.Render(innerWidth, innerHeight)),
 
