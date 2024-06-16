@@ -2,6 +2,9 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
+	"runtime"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -105,6 +108,13 @@ func (app *App) Render(outerWidth, outerHeight int) string {
 	innerHeight := outerHeight - 2 // Subtract 2 for the border
 	innerWidth := outerWidth - 2   // Subtract 2 for the border
 
+	currentPage := reactea.CurrentRoute()
+	if currentPage == "default" || currentPage == "" {
+		currentPage = fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)
+	} else {
+		currentPage = strings.ToUpper(currentPage[:1]) + strings.ToLower(currentPage[1:])
+	}
+
 	// Render the main components
 	return zone.Scan(lipgloss.NewStyle().
 		Background(lipgloss.Color(ANSIBackground)).
@@ -116,7 +126,25 @@ func (app *App) Render(outerWidth, outerHeight int) string {
 				Width(innerWidth).
 				Height(innerHeight).
 				Border(lipgloss.DoubleBorder(), true).
-				Render(app.mainRouter.Render(innerWidth, innerHeight)),
+				Render(lipgloss.JoinVertical(
+					lipgloss.Left,
+
+					// Header
+					lipgloss.NewStyle().
+						Padding(1, 0).
+						Width(innerWidth).
+						AlignHorizontal(lipgloss.Center).
+						Background(lipgloss.Color(ANSIBackground)).
+						MarginBackground(lipgloss.Color(ANSIBackground)).
+						Render(fmt.Sprintf(
+							"%s%s\n%s",
+							ColorPrimary.Bold(true).Render(fmt.Sprintf("%s ", APPNAME)),
+							ColorSecondary.Render(fmt.Sprintf("v%s", APPVERSION)),
+							ColorSecondary.Render(currentPage),
+						)),
+
+					app.mainRouter.Render(innerWidth, innerHeight-4),
+				)),
 
 			// Footer
 			app.controls.Render(outerWidth, footerHeight),

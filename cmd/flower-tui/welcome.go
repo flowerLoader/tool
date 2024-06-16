@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"runtime"
 	"slices"
 	"strings"
 
@@ -191,11 +190,9 @@ func (c *welcomeComponent) setCursorPos(pos int) {
 }
 
 func (c *welcomeComponent) Render(width, height int) string {
-	usableHeight := height - 2
-
 	spacing := 0
-	if usableHeight > minHeight {
-		spacing = (usableHeight - minHeight) / spacingRatio
+	if height > minHeight {
+		spacing = (height - minHeight) / spacingRatio
 	}
 
 	var innerBoxStyle = ColorBorder.
@@ -208,20 +205,6 @@ func (c *welcomeComponent) Render(width, height int) string {
 
 	return lipgloss.JoinVertical(
 		lipgloss.Top,
-
-		// Header
-		lipgloss.NewStyle().
-			Padding(1, 0).
-			Width(width).
-			AlignHorizontal(lipgloss.Center).
-			Background(lipgloss.Color(ANSIBackground)).
-			MarginBackground(lipgloss.Color(ANSIBackground)).
-			Render(fmt.Sprintf(
-				"%s%s\n%s",
-				ColorPrimary.Bold(true).Render(fmt.Sprintf("%s ", APPNAME)),
-				ColorSecondary.Render(fmt.Sprintf("v%s", APPVERSION)),
-				ColorSecondary.Render(fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)),
-			)),
 
 		// Filter Input Entry
 		innerBoxStyle.Render(
