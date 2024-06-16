@@ -6,15 +6,12 @@ import (
 	"github.com/londek/reactea"
 )
 
-type controlsFooterProps struct {
-}
-
 type controlsFooterComponent struct {
 	reactea.BasicComponent
-	reactea.BasicPropfulComponent[controlsFooterProps]
+	reactea.BasicPropfulComponent[reactea.NoProps]
 }
 
-func (c *controlsFooterComponent) Init(props *controlsFooterProps) tea.Cmd {
+func (c *controlsFooterComponent) Init() tea.Cmd {
 	return nil
 }
 

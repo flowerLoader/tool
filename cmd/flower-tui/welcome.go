@@ -13,12 +13,9 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 )
 
-type welcomeProps struct {
-}
-
 type welcomeComponent struct {
 	reactea.BasicComponent
-	reactea.BasicPropfulComponent[welcomeProps]
+	reactea.BasicPropfulComponent[reactea.NoProps]
 
 	// Components
 	filterInput FormField
@@ -34,7 +31,7 @@ type welcomeComponent struct {
 const minHeight = 18   // # of terminal lines reserved for header and footer
 const spacingRatio = 4 // # of terminal lines per 1 spacing line
 
-func (c *welcomeComponent) Init(props *welcomeProps) tea.Cmd {
+func (c *welcomeComponent) Init() tea.Cmd {
 	c.filterInput = NewFormField("", "? ", "Type to filter games...", "")
 	c.filterInput.ShowSuggestions = true
 	c.filterInput.Focus()

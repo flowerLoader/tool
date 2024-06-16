@@ -28,7 +28,7 @@ type App struct {
 func (app *App) Init(reactea.NoProps) tea.Cmd {
 	// Components
 	app.controls = &controlsFooterComponent{}
-	app.controls.Init(&controlsFooterProps{})
+	app.controls.Init()
 
 	app.theme = make(map[string]string)
 	app.theme["Border"] = ANSIBorder
@@ -41,7 +41,7 @@ func (app *App) Init(reactea.NoProps) tea.Cmd {
 	return app.mainRouter.Init(map[string]router.RouteInitializer{
 		"default": func(router.Params) (reactea.SomeComponent, tea.Cmd) {
 			component := &welcomeComponent{}
-			return component, component.Init(&welcomeProps{})
+			return component, component.Init()
 		},
 		"settings": func(router.Params) (reactea.SomeComponent, tea.Cmd) {
 			component := &settingsComponent{}
