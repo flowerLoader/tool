@@ -24,6 +24,8 @@
     "GOARCH",
     "goconvey",
     "golint",
+    "GRAYED",
+    "inconshreveable",
     "isekainosouzousha",
     "jedib",
     "jmoiron",
