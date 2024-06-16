@@ -53,6 +53,7 @@ require (
 	github.com/juju/errors v1.0.0 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
+	github.com/lrstanley/bubblezone v0.0.0-20240615043033-81c0dd750246
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
