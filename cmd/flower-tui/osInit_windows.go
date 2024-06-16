@@ -24,6 +24,8 @@ var (
 	getConsoleWindow        = kernel32.NewProc("GetConsoleWindow")
 	getStdHandle            = kernel32.NewProc("GetStdHandle")
 	setCurrentConsoleFontEx = kernel32.NewProc("SetCurrentConsoleFontEx")
+	setConsoleCP            = kernel32.NewProc("SetConsoleCP")
+	setConsoleOutputCP      = kernel32.NewProc("SetConsoleOutputCP")
 
 	user32         = windows.NewLazySystemDLL("user32.dll")
 	enableMenuItem = user32.NewProc("EnableMenuItem")
@@ -60,8 +62,9 @@ func setConsoleFontSize(fontSize int) {
 		FontWeight uint32
 		FaceName   [32]uint16
 	}
-	setConsoleOutputCP := kernel32.NewProc("SetConsoleOutputCP")
-	var cp uint32 = 437
+	// var cp uint32 = 437 // IBM OEM
+	var cp uint32 = 65001 // UTF-8
+	setConsoleCP.Call(uintptr(cp))
 	setConsoleOutputCP.Call(uintptr(cp))
 	setCurrentConsoleFontEx.Call(
 		stdOutputHandle,
