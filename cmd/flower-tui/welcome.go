@@ -32,6 +32,9 @@ type welcomeComponent struct {
 	cursorMax int
 }
 
+const minHeight = 18   // # of terminal lines reserved for header and footer
+const spacingRatio = 4 // # of terminal lines per 1 spacing line
+
 func (c *welcomeComponent) Init(props *welcomeProps) tea.Cmd {
 	c.filterInput = NewFormField("", "? ", "Type to filter games...", "")
 	c.filterInput.ShowSuggestions = true
@@ -106,11 +109,11 @@ func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 func (c *welcomeComponent) handleSubmit() tea.Cmd {
 	switch c.cursorPos {
 	case 0:
-		reactea.SetCurrentRoute(fmt.Sprintf("game/%s", c.inputAutocomplete(c.input.Value())))
+		reactea.SetCurrentRoute(fmt.Sprintf("game/%s", c.inputAutocomplete(c.filterInput.Value())))
 	case 1:
-		reactea.SetCurrentRoute("gameAdd")
+		reactea.SetCurrentRoute("game/unsupported")
 	case 2:
-		reactea.SetCurrentRoute("envManage")
+		reactea.SetCurrentRoute("manage-environments")
 	case 3:
 		reactea.SetCurrentRoute("settings")
 	case 4:
@@ -131,9 +134,6 @@ func (c *welcomeComponent) inputAutocomplete(text string) string {
 
 	return ""
 }
-
-const minHeight = 18   // # of terminal lines reserved for header and footer
-const spacingRatio = 4 // # of terminal lines per 1 spacing line
 
 func (c *welcomeComponent) renderCursor(pos int, after string) string {
 	if c.cursorMax < pos {
