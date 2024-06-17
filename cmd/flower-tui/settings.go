@@ -28,11 +28,11 @@ type settingsComponent struct {
 }
 
 func (c *settingsComponent) Init() tea.Cmd {
-	c.borderColor = NewFormField("Border", "#", "(default: 103)", theme.Border.Foreground)
-	c.primaryColor = NewFormField("Primary", "#", "(default: 176)", theme.Primary.Foreground)
-	c.secondaryColor = NewFormField("Secondary", "#", "(default: 96)", theme.Secondary.Foreground)
-	c.disabledColor = NewFormField("Disabled", "#", "(default: 243)", theme.Disabled.Foreground)
-	c.errorColor = NewFormField("Error", "#", "(default: 9)", theme.Error.Foreground)
+	c.borderColor = NewFormField("Border", "", "(default: 103)", theme.Styles[BorderStyle].Foreground)
+	c.primaryColor = NewFormField("Primary", "", "(default: 176)", theme.Styles[PrimaryStyle].Foreground)
+	c.secondaryColor = NewFormField("Secondary", "", "(default: 96)", theme.Styles[SecondaryStyle].Foreground)
+	c.disabledColor = NewFormField("Disabled", "", "(default: 243)", theme.Styles[DisabledStyle].Foreground)
+	c.errorColor = NewFormField("Error", "", "(default: 9)", theme.Styles[ErrorStyle].Foreground)
 
 	c.setCursorPos(0)
 
@@ -86,19 +86,29 @@ func (c *settingsComponent) Update(msg tea.Msg) tea.Cmd {
 	switch c.cursorPos {
 	case 0:
 		c.borderColor, cmd = c.borderColor.Update(msg)
-		theme.Border.Foreground = c.borderColor.Value()
+		style := theme.Styles[BorderStyle]
+		style.Foreground = c.borderColor.Value()
+		theme.Styles[BorderStyle] = style
 	case 1:
 		c.primaryColor, cmd = c.primaryColor.Update(msg)
-		theme.Primary.Foreground = c.primaryColor.Value()
+		style := theme.Styles[PrimaryStyle]
+		style.Foreground = c.primaryColor.Value()
+		theme.Styles[PrimaryStyle] = style
 	case 2:
 		c.secondaryColor, cmd = c.secondaryColor.Update(msg)
-		theme.Secondary.Foreground = c.secondaryColor.Value()
+		style := theme.Styles[SecondaryStyle]
+		style.Foreground = c.secondaryColor.Value()
+		theme.Styles[SecondaryStyle] = style
 	case 3:
 		c.disabledColor, cmd = c.disabledColor.Update(msg)
-		theme.Disabled.Foreground = c.disabledColor.Value()
+		style := theme.Styles[DisabledStyle]
+		style.Foreground = c.disabledColor.Value()
+		theme.Styles[DisabledStyle] = style
 	case 4:
 		c.errorColor, cmd = c.errorColor.Update(msg)
-		theme.Error.Foreground = c.errorColor.Value()
+		style := theme.Styles[ErrorStyle]
+		style.Foreground = c.errorColor.Value()
+		theme.Styles[ErrorStyle] = style
 	}
 	if cmd != nil {
 		cmds = append(cmds, cmd)

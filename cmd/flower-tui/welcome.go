@@ -170,7 +170,7 @@ func (c *welcomeComponent) renderInput() string {
 
 	return lipgloss.NewStyle().
 		Width(c.filterInput.Width).
-		Background(lipgloss.Color(theme.Default.Background)).
+		Background(lipgloss.Color(theme.Styles[DefaultStyle].Background)).
 		Render(lipgloss.JoinVertical(lipgloss.Left, elements...))
 }
 
