@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/londek/reactea"
@@ -28,23 +28,27 @@ type settingsComponent struct {
 }
 
 func (c *settingsComponent) Init() tea.Cmd {
-	c.borderColor = NewFormField("Border", "", "(default: 103)", theme.Styles[BorderStyle].Foreground)
-	c.primaryColor = NewFormField("Primary", "", "(default: 176)", theme.Styles[PrimaryStyle].Foreground)
-	c.secondaryColor = NewFormField("Secondary", "", "(default: 96)", theme.Styles[SecondaryStyle].Foreground)
-	c.disabledColor = NewFormField("Disabled", "", "(default: 243)", theme.Styles[DisabledStyle].Foreground)
-	c.errorColor = NewFormField("Error", "", "(default: 9)", theme.Styles[ErrorStyle].Foreground)
+	fields := []struct {
+		field *FormField
+		label string
+		def   string
+	}{
+		{&c.borderColor, "Border", theme.Styles[BorderStyle].Foreground},
+		{&c.primaryColor, "Primary", theme.Styles[PrimaryStyle].Foreground},
+		{&c.secondaryColor, "Secondary", theme.Styles[SecondaryStyle].Foreground},
+		{&c.disabledColor, "Disabled", theme.Styles[DisabledStyle].Foreground},
+		{&c.errorColor, "Error", theme.Styles[ErrorStyle].Foreground},
+	}
+
+	cmds := []tea.Cmd{}
+	for _, f := range fields {
+		*f.field = NewFormField(f.label, "", fmt.Sprintf("(default: %s)", f.def), f.def)
+		cmds = append(cmds, (*f.field).Focus(), (*f.field).Cursor.SetMode(cursor.CursorBlink))
+	}
 
 	c.setCursorPos(0)
 
-	return tea.Batch(
-		textinput.Blink,
-		c.borderColor.Focus(),
-		c.borderColor.Cursor.SetMode(cursor.CursorBlink),
-		c.primaryColor.Cursor.SetMode(cursor.CursorBlink),
-		c.secondaryColor.Cursor.SetMode(cursor.CursorBlink),
-		c.disabledColor.Cursor.SetMode(cursor.CursorBlink),
-		c.errorColor.Cursor.SetMode(cursor.CursorBlink),
-	)
+	return tea.Batch(cmds...)
 }
 
 func (c *settingsComponent) Update(msg tea.Msg) tea.Cmd {
@@ -83,48 +87,32 @@ func (c *settingsComponent) Update(msg tea.Msg) tea.Cmd {
 		}
 	}
 
-	switch c.cursorPos {
-	case 0:
-		c.borderColor, cmd = c.borderColor.Update(msg)
-		style := theme.Styles[BorderStyle]
-		style.Foreground = c.borderColor.Value()
-		theme.Styles[BorderStyle] = style
-	case 1:
-		c.primaryColor, cmd = c.primaryColor.Update(msg)
-		style := theme.Styles[PrimaryStyle]
-		style.Foreground = c.primaryColor.Value()
-		theme.Styles[PrimaryStyle] = style
-	case 2:
-		c.secondaryColor, cmd = c.secondaryColor.Update(msg)
-		style := theme.Styles[SecondaryStyle]
-		style.Foreground = c.secondaryColor.Value()
-		theme.Styles[SecondaryStyle] = style
-	case 3:
-		c.disabledColor, cmd = c.disabledColor.Update(msg)
-		style := theme.Styles[DisabledStyle]
-		style.Foreground = c.disabledColor.Value()
-		theme.Styles[DisabledStyle] = style
-	case 4:
-		c.errorColor, cmd = c.errorColor.Update(msg)
-		style := theme.Styles[ErrorStyle]
-		style.Foreground = c.errorColor.Value()
-		theme.Styles[ErrorStyle] = style
+	fields := []*FormField{
+		&c.borderColor,
+		&c.primaryColor,
+		&c.secondaryColor,
+		&c.disabledColor,
+		&c.errorColor,
 	}
-	if cmd != nil {
-		cmds = append(cmds, cmd)
+
+	for i, field := range fields {
+		if c.cursorPos == i {
+			*field, cmd = field.Update(msg)
+			styleType := StyleType(strings.ToLower(field.Label))
+			style := theme.Styles[styleType]
+			style.Foreground = field.Value()
+			theme.Styles[styleType] = style
+		}
+		if cmd != nil {
+			cmds = append(cmds, cmd)
+		}
 	}
 
 	return tea.Batch(cmds...)
 }
 
 func (c *settingsComponent) handleSubmit() tea.Cmd {
-	switch c.cursorPos {
-	case 0: // Border Color
-	case 1: // Primary Color
-	case 2: // Secondary Color
-	case 3: // Disabled Color
-	case 4: // Error Color
-	case 5: // Back to Main Menu
+	if c.cursorPos == 5 { // Back to Main Menu
 		reactea.SetCurrentRoute("default")
 	}
 
@@ -164,56 +152,22 @@ func (c *settingsComponent) setCursorPos(pos int) {
 
 	c.cursorPos = pos
 
-	//
-	// Update styles according to cursor position
-	//
-
-	if c.cursorPos == c.cursorMax {
-		c.borderColor.TextStyle = theme.Gloss(DefaultStyle)
-		c.primaryColor.TextStyle = theme.Gloss(DefaultStyle)
-		c.secondaryColor.TextStyle = theme.Gloss(DefaultStyle)
-		c.disabledColor.TextStyle = theme.Gloss(DefaultStyle)
-		c.errorColor.TextStyle = theme.Gloss(DefaultStyle)
+	fields := []*FormField{
+		&c.borderColor,
+		&c.primaryColor,
+		&c.secondaryColor,
+		&c.disabledColor,
+		&c.errorColor,
 	}
 
-	if c.cursorPos == 0 {
-		c.borderColor.TextStyle = theme.Gloss(PrimaryStyle)
-		c.borderColor.Focus()
-	} else {
-		c.borderColor.TextStyle = theme.Gloss(DefaultStyle)
-		c.borderColor.Blur()
-	}
-
-	if c.cursorPos == 1 {
-		c.primaryColor.TextStyle = theme.Gloss(PrimaryStyle)
-		c.primaryColor.Focus()
-	} else {
-		c.primaryColor.TextStyle = theme.Gloss(DefaultStyle)
-		c.primaryColor.Blur()
-	}
-
-	if c.cursorPos == 2 {
-		c.secondaryColor.TextStyle = theme.Gloss(PrimaryStyle)
-		c.secondaryColor.Focus()
-	} else {
-		c.secondaryColor.TextStyle = theme.Gloss(DefaultStyle)
-		c.secondaryColor.Blur()
-	}
-
-	if c.cursorPos == 3 {
-		c.disabledColor.TextStyle = theme.Gloss(PrimaryStyle)
-		c.disabledColor.Focus()
-	} else {
-		c.disabledColor.TextStyle = theme.Gloss(DefaultStyle)
-		c.disabledColor.Blur()
-	}
-
-	if c.cursorPos == 4 {
-		c.errorColor.TextStyle = theme.Gloss(PrimaryStyle)
-		c.errorColor.Focus()
-	} else {
-		c.errorColor.TextStyle = theme.Gloss(DefaultStyle)
-		c.errorColor.Blur()
+	for i, field := range fields {
+		if c.cursorPos == i {
+			field.TextStyle = theme.Gloss(PrimaryStyle)
+			field.Focus()
+		} else {
+			field.TextStyle = theme.Gloss(DefaultStyle)
+			field.Blur()
+		}
 	}
 }
 
