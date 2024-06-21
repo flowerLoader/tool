@@ -64,8 +64,8 @@ jobs:
       - name: Upload Binaries
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag_name="${GITHUB_REF##*/}"
-          hub release create -p \
-            $(find . -type f -name "flower*amd64*" -printf "-a %p ") \
-            -m "Release $tag_name" "$tag_name"
+          tag: ${{ github.ref_name }}
+        run: gh release create -p "$tag" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+              $(find . -type f -name "flower*amd64*" -printf "%p ")
