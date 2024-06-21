@@ -61,33 +61,11 @@ jobs:
           name: build-windows-latest-amd64
           path: build/windows-amd64
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Upload Binaries
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: true
-
-      - name: Upload Linux Binary
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/linux-amd64/app
-          asset_name: flower-linux-amd64
-          asset_content_type: application/octet-stream
-
-      - name: Upload Windows Binary
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/windows-amd64/app
-          asset_name: flower-windows-amd64.exe
-          asset_content_type: application/octet-stream
+        run: |
+          tag_name="${GITHUB_REF##*/}"
+          hub release create -p \
+            $(find . -type f -name "flower*amd64*" -printf "-a %p ") \
+            -m "Release $tag_name" "$tag_name"
