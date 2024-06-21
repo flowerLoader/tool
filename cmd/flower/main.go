@@ -4,7 +4,7 @@ import "os"
 
 const (
 	APPNAME    = "flower"
-	APPVERSION = "0.3.0"
+	APPVERSION = "0.4.0"
 )
 
 func main() {
