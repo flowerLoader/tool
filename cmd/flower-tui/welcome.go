@@ -10,7 +10,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/londek/reactea"
-	zone "github.com/lrstanley/bubblezone"
 )
 
 type welcomeComponent struct {
@@ -18,14 +17,11 @@ type welcomeComponent struct {
 	reactea.BasicPropfulComponent[reactea.NoProps]
 
 	// Components
+	nav         *navComponent
 	filterInput FormField
 
 	// Optimization for re-use
 	sortedGameNames []string
-
-	// State
-	cursorPos int
-	cursorMax int
 }
 
 const minHeight = 18   // # of terminal lines reserved for header and footer
@@ -46,6 +42,29 @@ func (c *welcomeComponent) Init() tea.Cmd {
 	slices.Sort(c.sortedGameNames)
 	c.filterInput.SetSuggestions(c.sortedGameNames)
 
+	c.nav = NewNavComponent(theme.Gloss(PrimaryStyle), []Item{
+		{Func: c.renderInput},
+		{Name: "Add Unsupported Game (Advanced)"},
+		{Name: "Manage Environments"},
+		{Name: "TUI Settings"},
+		{Name: "Quit"},
+	}, func(position int) tea.Cmd {
+		switch position {
+		case 0:
+			reactea.SetCurrentRoute(fmt.Sprintf("game/%s", c.inputAutocomplete(c.filterInput.Value())))
+		case 1:
+			reactea.SetCurrentRoute("game/unsupported")
+		case 2:
+			reactea.SetCurrentRoute("manage-environments")
+		case 3:
+			reactea.SetCurrentRoute("settings")
+		case 4:
+			return reactea.Destroy
+		}
+
+		return nil
+	})
+
 	return tea.Batch(
 		textinput.Blink,
 		c.filterInput.Cursor.SetMode(cursor.CursorBlink),
@@ -56,41 +75,21 @@ func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, 1)
 	c.filterInput, cmds[0] = c.filterInput.Update(msg)
 
-	prevPos := c.cursorPos
+	prevPos := c.nav.position
+	if cmd := c.nav.Update(msg); cmd != nil {
+		return cmd // return early if nav component handled the message
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "up":
-			c.setCursorPos(c.cursorPos - 1)
-
-		case "down":
-			c.setCursorPos(c.cursorPos + 1)
-
 		case "enter":
-			cmds = append(cmds, c.handleSubmit())
-		}
-
-	case tea.MouseMsg:
-		switch msg.Button {
-		case tea.MouseButtonWheelUp:
-			c.setCursorPos(c.cursorPos - 1)
-		case tea.MouseButtonWheelDown:
-			c.setCursorPos(c.cursorPos + 1)
-		}
-
-		for i := 0; i <= c.cursorMax; i++ {
-			if zone.Get(fmt.Sprintf("cursor%d", i)).InBounds(msg) {
-				c.cursorPos = i
-				if msg.Action == tea.MouseActionRelease || msg.Button == tea.MouseButtonLeft {
-					cmds = append(cmds, c.handleSubmit())
-				}
-				break
-			}
+			cmds = append(cmds, c.nav.onClick(c.nav.position))
 		}
 	}
 
-	if prevPos != c.cursorPos {
-		if c.cursorPos == 0 {
+	if prevPos != c.nav.position {
+		if c.nav.position == 0 {
 			c.filterInput.TextStyle = theme.Gloss(PrimaryStyle)
 			cmds = append(cmds, c.filterInput.Focus())
 		} else {
@@ -100,23 +99,6 @@ func (c *welcomeComponent) Update(msg tea.Msg) tea.Cmd {
 	}
 
 	return tea.Batch(cmds...)
-}
-
-func (c *welcomeComponent) handleSubmit() tea.Cmd {
-	switch c.cursorPos {
-	case 0:
-		reactea.SetCurrentRoute(fmt.Sprintf("game/%s", c.inputAutocomplete(c.filterInput.Value())))
-	case 1:
-		reactea.SetCurrentRoute("game/unsupported")
-	case 2:
-		reactea.SetCurrentRoute("manage-environments")
-	case 3:
-		reactea.SetCurrentRoute("settings")
-	case 4:
-		return reactea.Destroy
-	}
-
-	return nil
 }
 
 func (c *welcomeComponent) inputAutocomplete(text string) string {
@@ -129,28 +111,6 @@ func (c *welcomeComponent) inputAutocomplete(text string) string {
 	}
 
 	return ""
-}
-
-func (c *welcomeComponent) renderCursor(pos int, after string) string {
-	if c.cursorMax < pos {
-		c.cursorMax = pos
-	}
-
-	elements := make([]string, 1)
-	if c.cursorPos == pos {
-		elements[0] = theme.Gloss(PrimaryStyle).Render(" → ")
-		elements = append(elements, theme.Gloss(PrimaryStyle).Render(" "))
-		elements = append(elements, theme.Gloss(PrimaryStyle).Render(after))
-	} else {
-		elements[0] = theme.Gloss(DefaultStyle).Render("   ")
-		elements = append(elements, theme.Gloss(DefaultStyle).Render(" "))
-		elements = append(elements, theme.Gloss(DefaultStyle).Render(after))
-	}
-
-	return zone.Mark(
-		fmt.Sprintf("cursor%d", pos),
-		lipgloss.JoinHorizontal(lipgloss.Left, elements...),
-	)
 }
 
 func (c *welcomeComponent) renderInput() string {
@@ -174,18 +134,6 @@ func (c *welcomeComponent) renderInput() string {
 		Render(lipgloss.JoinVertical(lipgloss.Left, elements...))
 }
 
-func (c *welcomeComponent) setCursorPos(pos int) {
-	if pos < 0 {
-		pos = 0
-	}
-
-	if pos > c.cursorMax {
-		pos = c.cursorMax
-	}
-
-	c.cursorPos = pos
-}
-
 func (c *welcomeComponent) Render(width, height int) string {
 	spacing := 0
 	if height > minHeight {
@@ -204,16 +152,16 @@ func (c *welcomeComponent) Render(width, height int) string {
 		lipgloss.Top,
 
 		// Filter Input Entry
-		innerBoxStyle.Render(c.renderCursor(0, c.renderInput())),
+		innerBoxStyle.Render(c.nav.Render(0, width-10, 1)),
 
 		// Help Text
 		innerBoxStyle.Render(
 			lipgloss.JoinVertical(
 				lipgloss.Left,
-				c.renderCursor(1, "Add Unsupported Game (Advanced)"),
-				c.renderCursor(2, "Manage Environments            "),
-				c.renderCursor(3, "TUI Settings                   "),
-				c.renderCursor(4, "Quit                           "),
+				c.nav.Render(1, width-10, 1),
+				c.nav.Render(2, width-10, 1),
+				c.nav.Render(3, width-10, 1),
+				c.nav.Render(4, width-10, 1),
 			),
 		),
 	)
