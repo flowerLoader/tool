@@ -69,4 +69,4 @@ jobs:
             gh release create -p "$tag" \
               --repo="$GITHUB_REPOSITORY" \
               --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
-              $(find . -type f -name "flower*amd64*" -printf "%p ")
+              $(find . -type f -name "build/*" -printf "%p ")
