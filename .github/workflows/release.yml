@@ -67,6 +67,12 @@ jobs:
           echo "Tag name is $tagname"
           echo "Uploading release assets..."
           ls -lR build/*
-          files=$(for f in build/*; do echo -n " $f\#"; echo -n $f | sed -e s/build\\/// -e s/latest-// ; done)
+          files=$(for f in build/*; do
+            outfile=$(echo $f | sed -e s/build\\/// -e s/latest-//)
+            echo -n " $f/app#$outfile"
+            if [[ "$f" == *windows* ]]; then
+              echo -n ".exe"
+            fi
+          done)
           echo "Files are $files"
           gh release create "$tagname" -t "$tagname" $files
