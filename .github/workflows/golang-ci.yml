@@ -17,6 +17,7 @@ jobs:
       - name: Set up Go environment
         uses: actions/setup-go@v5
         with:
+          cache: true
           go-version: "1.22.x"
 
       - name: Install dependencies
@@ -43,6 +44,7 @@ jobs:
       - name: Set up Go environment
         uses: actions/setup-go@v5
         with:
+          cache: true
           go-version: ${{ matrix.go-version }}
 
       - name: Install dependencies
