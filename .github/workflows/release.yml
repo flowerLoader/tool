@@ -44,8 +44,7 @@ jobs:
             ./cmd/${{ matrix.package }}
 
       - name: Bundle
-        run: 7z a -tzip "${{ matrix.package }}-${{ matrix.os }}-${{ matrix.arch }}.zip" \
-          "build/${{ matrix.package }}*"
+        run: 7z a -tzip "${{ matrix.package }}-${{ matrix.os }}-${{ matrix.arch }}.zip" build/${{ matrix.package }}*
 
       - name: Archive build artifact
         uses: actions/upload-artifact@v4
