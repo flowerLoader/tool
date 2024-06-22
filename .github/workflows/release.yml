@@ -49,14 +49,14 @@ jobs:
     needs: [build]
 
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: build
-
       # Without this, "gh" explodes spectacularily
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: build/
 
       - name: Upload Binaries
         env:
