@@ -1,9 +1,11 @@
-name: Go CI
+name: Build and Release
 on:
   # Trigger the workflow on a push with a tag starting with 'v'
   push:
-    tags:
-      - 'v*'
+    branches:
+      - flower-tui
+  #   tags:
+  #     - 'v*'
 
 jobs:
   build:
@@ -15,6 +17,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         go-version: ["1.22.x"]
         arch: [amd64]
+        package: [flower, flower-tui]
 
     steps:
       - name: Checkout Repository
@@ -23,23 +26,26 @@ jobs:
       - name: Set up Go environment
         uses: actions/setup-go@v5
         with:
+          cache: true
           go-version: ${{ matrix.go-version }}
 
       - name: Install dependencies
         run: go get -v -t -d ./...
 
-      - name: Build binary
+      - name: Build ${{ matrix.package }} for ${{ matrix.os }} (${{ matrix.arch }})
         run: |
-          mkdir -p build/${{ matrix.os }}-${{ matrix.arch }}
+          mkdir -p build/
           GOOS=$(if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then echo "linux"; else echo "windows"; fi) GOARCH=${{ matrix.arch }} go build -v \
-            -o build/${{ matrix.os }}-${{ matrix.arch }}/app \
-            ./cmd/flower
+            -o build/${{ matrix.package }} \
+            ./cmd/${{ matrix.package }}
 
-      - name: Archive build artifacts
+      - name: Archive build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-${{ matrix.arch }}
-          path: build/${{ matrix.os }}-${{ matrix.arch }}/app
+          compression-level: 0
+          if-no-files-found: error
+          name: ${{ matrix.package }}-${{ matrix.os }}-${{ matrix.arch }}
+          path: build/${{ matrix.package }}
 
   release:
     name: Release
@@ -56,6 +62,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
+          merge-multiple: true
           path: build/
 
       - name: Upload Binaries
@@ -64,14 +71,10 @@ jobs:
         run: |
           tagname="${GITHUB_REF#refs/tags/}"
           echo "Tag name is $tagname"
-          echo "Uploading release assets..."
           ls -lR build/*
+          echo "Uploading release assets..."
           files=$(for f in build/*; do
-            outfile=$(echo $f | sed -e s/build\\/// -e s/latest-//)
-            echo -n " $f/app#$outfile"
-            if [[ "$f" == *windows* ]]; then
-              echo -n ".exe"
-            fi
+            echo -n " $f"
           done)
           echo "Files are $files"
           GH_DEBUG=api gh release create "$tagname" -t "$tagname" $files
