@@ -69,4 +69,4 @@ jobs:
             gh release create -p "$tag" \
               --repo="$GITHUB_REPOSITORY" \
               --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
-              $(find build/ -type f -print)
+              ./build/*
