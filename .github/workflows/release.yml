@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [linux, windows]
         go-version: ["1.22.x"]
         arch: [amd64]
         package: [flower, flower-tui]
@@ -34,9 +34,13 @@ jobs:
 
       - name: Build ${{ matrix.package }} for ${{ matrix.os }} (${{ matrix.arch }})
         run: |
+          outfile=${{ matrix.package }}-${{ matrix.os }}-${{ matrix.arch }}
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            outfile="${outfile}.exe"
+          fi
           mkdir -p build/
-          GOOS=$(if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then echo "linux"; else echo "windows"; fi) GOARCH=${{ matrix.arch }} go build -v \
-            -o build/${{ matrix.package }} \
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v \
+            -o "build/$outfile" \
             ./cmd/${{ matrix.package }}
 
       - name: Archive build artifact
@@ -45,7 +49,7 @@ jobs:
           compression-level: 0
           if-no-files-found: error
           name: ${{ matrix.package }}-${{ matrix.os }}-${{ matrix.arch }}
-          path: build/${{ matrix.package }}
+          path: build/${{ matrix.package }}-${{ matrix.os }}-${{ matrix.arch }}*
 
   release:
     name: Release
@@ -73,8 +77,4 @@ jobs:
           echo "Tag name is $tagname"
           ls -lR build/*
           echo "Uploading release assets..."
-          files=$(for f in build/*; do
-            echo -n " $f"
-          done)
-          echo "Files are $files"
-          GH_DEBUG=api gh release create "$tagname" -t "$tagname" $files
+          GH_DEBUG=api gh release create "$tagname" -t "$tagname" build/*
