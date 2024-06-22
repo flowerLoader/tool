@@ -60,8 +60,7 @@ jobs:
 
       - name: Upload Binaries
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tagname="${GITHUB_REF#refs/tags/}"
           echo "Tag name is $tagname"
@@ -75,4 +74,4 @@ jobs:
             fi
           done)
           echo "Files are $files"
-          gh release create "$tagname" -t "$tagname" $files
+          GH_DEBUG=api gh release create "$tagname" -t "$tagname" $files
