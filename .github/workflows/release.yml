@@ -2,10 +2,10 @@ name: Build and Release
 on:
   # Trigger the workflow on a push with a tag starting with 'v'
   push:
-    branches:
-      - flower-tui
-  #   tags:
-  #     - 'v*'
+    tags:
+      - 'v*'
+  # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
