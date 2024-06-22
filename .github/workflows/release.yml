@@ -74,7 +74,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tagname="${GITHUB_REF#refs/tags/}"
-          echo "Tag name is $tagname"
-          ls -lR build/*
-          echo "Uploading release assets..."
-          GH_DEBUG=api gh release create "$tagname" -t "$tagname" build/*
+          gh release create "$tagname" -t "$tagname" build/*
