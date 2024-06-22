@@ -52,14 +52,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build-ubuntu-latest-amd64
-          path: build/linux-amd64
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-windows-latest-amd64
-          path: build/windows-amd64
+          path: build
 
       - name: Upload Binaries
         env:
@@ -71,6 +64,5 @@ jobs:
           echo "Uploading release assets..."
           ls -lR build/
           gh release create "$tagname" \
-            --repo="$GITHUB_REPOSITORY" \
             --title="${tagname}" \
-            build/*/*
+            build/*
