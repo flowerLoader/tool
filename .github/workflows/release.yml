@@ -66,7 +66,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
         run: |
-            gh release create -p "$tag" \
-              --repo="$GITHUB_REPOSITORY" \
-              --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
-              ./build/*/*
+          tagname="${GITHUB_REF#refs/tags/}"
+          echo "Tag name is $tagname"
+          echo "Uploading release assets..."
+          ls -lR build/
+          gh release create "$tagname" \
+            --repo="$GITHUB_REPOSITORY" \
+            --title="${tagname}" \
+            build/*/*
