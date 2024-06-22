@@ -38,7 +38,7 @@ jobs:
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-${{ matrix.os }}-${{ matrix.arch }}
+          name: ${{ matrix.os }}-${{ matrix.arch }}
           path: build/${{ matrix.os }}-${{ matrix.arch }}/app
 
   release:
@@ -54,6 +54,10 @@ jobs:
         with:
           path: build
 
+      # Without this, "gh" explodes spectacularily
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Upload Binaries
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -62,7 +66,7 @@ jobs:
           tagname="${GITHUB_REF#refs/tags/}"
           echo "Tag name is $tagname"
           echo "Uploading release assets..."
-          ls -lR build/
-          gh release create "$tagname" \
-            --title="${tagname}" \
-            build/*
+          ls -lR build/*
+          files=$(for f in build/*; do echo -n " $f\#"; echo -n $f | sed -e s/build\\/// -e s/latest-// ; done)
+          echo "Files are $files"
+          gh release create "$tagname" -t "$tagname" $files
