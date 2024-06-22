@@ -34,7 +34,7 @@ jobs:
 
       - name: Build ${{ matrix.package }} for ${{ matrix.os }} (${{ matrix.arch }})
         run: |
-          outfile=${{ matrix.package }}-${{ matrix.os }}-${{ matrix.arch }}
+          outfile=${{ matrix.package }}
           if [ "${{ matrix.os }}" = "windows" ]; then
             outfile="${outfile}.exe"
           fi
@@ -43,13 +43,17 @@ jobs:
             -o "build/$outfile" \
             ./cmd/${{ matrix.package }}
 
+      - name: Bundle
+        run: 7z a -tzip "${{ matrix.package }}-${{ matrix.os }}-${{ matrix.arch }}.zip" \
+          "build/${{ matrix.package }}*"
+
       - name: Archive build artifact
         uses: actions/upload-artifact@v4
         with:
           compression-level: 0
           if-no-files-found: error
           name: ${{ matrix.package }}-${{ matrix.os }}-${{ matrix.arch }}
-          path: build/${{ matrix.package }}-${{ matrix.os }}-${{ matrix.arch }}*
+          path: ${{ matrix.package }}-${{ matrix.os }}-${{ matrix.arch }}.zip
 
   release:
     name: Release
