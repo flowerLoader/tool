@@ -37,6 +37,10 @@ func TestTranspileProject(t *testing.T) {
 		JS_BANNER = ""
 		JS_FOOTER = ""
 
+		cwd, _ := os.Getwd()
+		relTmp, _ := filepath.Rel(cwd, tmpSrc)
+		relTmpSrc := strings.Replace(relTmp, "\\", "/", -1)
+
 		dstFile := filepath.Join(tmpSrc, "test.js")
 		Convey("should transpile a single file", func() {
 			So(os.WriteFile(filepath.Join(tmpSrc, "test.ts"),
@@ -49,7 +53,7 @@ func TestTranspileProject(t *testing.T) {
 
 			contents, err := os.ReadFile(dstFile)
 			So(err, ShouldBeNil)
-			So(string(contents), ShouldResemble, fmt.Sprintf("// %s/test.ts\nconsole.log(\"hello world\");\n", strings.Replace(tmpSrc, "\\", "/", -1)))
+			So(string(contents), ShouldResemble, fmt.Sprintf("// %s/test.ts\nconsole.log(\"hello world\");\n", relTmpSrc))
 		})
 
 		Convey("should transpile multiple files", func() {
@@ -66,7 +70,7 @@ func TestTranspileProject(t *testing.T) {
 
 			contents, err := os.ReadFile(dstFile)
 			So(err, ShouldBeNil)
-			So(string(contents), ShouldResemble, fmt.Sprintf("// %s/fnTest.ts\nfunction fn() {\n  console.log(\"hello world\");\n}\n\n// %s/index.ts\nfn();\n", strings.Replace(tmpSrc, "\\", "/", -1), strings.Replace(tmpSrc, "\\", "/", -1)))
+			So(string(contents), ShouldResemble, fmt.Sprintf("// %s/fnTest.ts\nfunction fn() {\n  console.log(\"hello world\");\n}\n\n// %s/index.ts\nfn();\n", relTmpSrc, relTmpSrc))
 		})
 
 		Convey("should transpile with debug", func() {
@@ -82,7 +86,7 @@ func TestTranspileProject(t *testing.T) {
 
 			contents, err := os.ReadFile(dstFile)
 			So(err, ShouldBeNil)
-			So(string(contents), ShouldResemble, fmt.Sprintf("// %s/debug.ts\nvar debuglogging = true;\nconsole.log(debuglogging);\n", strings.Replace(tmpSrc, "\\", "/", -1)))
+			So(string(contents), ShouldResemble, fmt.Sprintf("// %s/debug.ts\nvar debuglogging = true;\nconsole.log(debuglogging);\n", relTmpSrc))
 		})
 
 		Convey("can transpile from package.json", func() {
@@ -98,7 +102,7 @@ func TestTranspileProject(t *testing.T) {
 
 			contents, err := os.ReadFile(dstFile)
 			So(err, ShouldBeNil)
-			So(string(contents), ShouldResemble, fmt.Sprintf("// %s/whatever.ts\nconsole.log(\"hello world\");\n", strings.Replace(tmpSrc, "\\", "/", -1)))
+			So(string(contents), ShouldResemble, fmt.Sprintf("// %s/whatever.ts\nconsole.log(\"hello world\");\n", relTmpSrc))
 		})
 	})
 }
