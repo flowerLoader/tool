@@ -13,7 +13,7 @@ import (
 	"sync"
 
 	log "github.com/AlbinoGeek/logxi/v1"
-	"github.com/codeclysm/extract/v3"
+	"github.com/codeclysm/extract/v4"
 
 	"github.com/flowerLoader/tool/pkg/ts"
 )
