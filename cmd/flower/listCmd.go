@@ -70,8 +70,8 @@ func onListCommandRun(cmd *cobra.Command, args []string) {
 func filterPlugins(
 	records []*types.PluginInstallRecord,
 	authorFilter string,
-) map[string]interface{} {
-	toRender := make(map[string]interface{})
+) map[string]any {
+	toRender := make(map[string]any)
 	filters := compileFilters(authorFilter)
 
 	for _, record := range records {
@@ -81,7 +81,7 @@ func filterPlugins(
 		}
 
 		if applyFilters(cacheRecord, filters) {
-			toRender[record.ID] = map[string]interface{}{
+			toRender[record.ID] = map[string]any{
 				"Name":        cacheRecord.Name,
 				"Version":     cacheRecord.Version,
 				"Author":      cacheRecord.Author,

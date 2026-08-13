@@ -15,7 +15,7 @@ var (
 	ErrUpdateDB         = errors.New("failed to update plugin database, check logs for details")
 )
 
-func exit(err error, args ...interface{}) {
+func exit(err error, args ...any) {
 	log.Error("Exiting",
 		"error", err,
 		"args", args)

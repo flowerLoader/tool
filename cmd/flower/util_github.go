@@ -36,14 +36,17 @@ type PackageJSON struct {
 	License string `json:"license,omitempty"`
 	Bugs    struct {
 		URL string `json:"url,omitempty"`
-	} `json:"bugs,omitempty"`
+	} `json:"bugs"`
 	Homepage     string            `json:"homepage,omitempty"`
 	Dependencies map[string]string `json:"dependencies,omitempty"`
 }
 
 func githubRepoAnalyze(ctx context.Context, repo string) (*PackageJSON, error) {
-	owner := strings.Split(repo, "/")[0]
-	repo = strings.Split(repo, "/")[1]
+	owner, name, ok := strings.Cut(repo, "/")
+	if !ok {
+		return nil, fmt.Errorf("invalid repository %q: want owner/name", repo)
+	}
+	repo = name
 
 	// 1) Which branches are present in the repo?
 	log.Debug("Analyzing Repository, Fetching Branches", "owner", owner, "repo", repo)
