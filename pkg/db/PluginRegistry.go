@@ -43,7 +43,7 @@ func (r *PluginRegistry) CacheGet(id string) (*types.PluginCacheRecord, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	record := new(types.PluginCacheRecord)
 	err = stmt.QueryRow(id).Scan(&record.ID, &record.UpdatedAt, &record.Name, &record.Version, &record.Author, &record.License, &record.BugsURL, &record.Homepage, &record.APIVersion, &record.Tags, &record.Summary)
@@ -61,7 +61,7 @@ func (r *PluginRegistry) CachePut(record *types.PluginCacheRecord) error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	_, err = stmt.Exec(record.ID, record.UpdatedAt, record.Name, record.Version, record.Author, record.License, record.BugsURL, record.Homepage, record.APIVersion, record.Tags, record.Summary)
 
@@ -75,7 +75,7 @@ func (r *PluginRegistry) Add(record *types.PluginInstallRecord) error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	_, err = stmt.Exec(record.ID, record.Enabled, record.InstalledAt, record.UpdatedAt)
 	return err
@@ -88,7 +88,7 @@ func (r *PluginRegistry) Get(id string) (*types.PluginInstallRecord, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	record := new(types.PluginInstallRecord)
 	err = stmt.QueryRow(id).Scan(&record.ID, &record.Enabled, &record.InstalledAt, &record.UpdatedAt)
@@ -106,7 +106,7 @@ func (r *PluginRegistry) List() ([]*types.PluginInstallRecord, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var records []*types.PluginInstallRecord
 	for rows.Next() {
@@ -129,7 +129,7 @@ func (r *PluginRegistry) Remove(id string) error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	_, err = stmt.Exec(id)
 	return err
@@ -142,7 +142,7 @@ func (r *PluginRegistry) Update(record *types.PluginInstallRecord) error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	_, err = stmt.Exec(record.Enabled, record.UpdatedAt, record.ID)
 	return err

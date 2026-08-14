@@ -29,14 +29,14 @@ func setVariable(filename, variable, value string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open backup file: %w", err)
 	}
-	defer bakFile.Close()
+	defer func() { _ = bakFile.Close() }()
 
 	// Create a new file with the original filename for writing the modified content
 	newFile, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("failed to create new file: %w", err)
 	}
-	defer newFile.Close()
+	defer func() { _ = newFile.Close() }()
 
 	scanner := bufio.NewScanner(bakFile)
 	writer := bufio.NewWriter(newFile)
@@ -70,9 +70,13 @@ func setVariable(filename, variable, value string) error {
 		return fmt.Errorf("failed to flush writer: %w", err)
 	}
 
-	// Close both files
-	newFile.Close()
-	bakFile.Close()
+	// Close both files, checking for flush errors before removing the backup
+	if err := newFile.Close(); err != nil {
+		return fmt.Errorf("failed to close new file: %w", err)
+	}
+	if err := bakFile.Close(); err != nil {
+		return fmt.Errorf("failed to close backup file: %w", err)
+	}
 
 	// Remove the backup file as everything went well
 	if err := os.Remove(backupFilename); err != nil {

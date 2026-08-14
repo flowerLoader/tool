@@ -267,7 +267,7 @@ func getDepsForPackage(jsonPath string) (map[string]Dependency, error) {
 		return nil, fmt.Errorf("failed to read package-lock.json: %w", err)
 	}
 
-	var val PackageLog = PackageLog{}
+	var val = PackageLog{}
 	if err = json.Unmarshal(js, &val); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal package-lock.json: %w", err)
 	}
@@ -375,7 +375,7 @@ func installNPMDependency(name string, info Dependency) error {
 	if err != nil {
 		return fmt.Errorf("failed to download %s: %w", name, err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("failed to download %s: %s", name, res.Status)
