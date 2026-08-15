@@ -19,16 +19,12 @@ jobs:
 
       - name: Set up Go environment
         uses: Rethunk-Tech/gh-actions/setup-go@ea87a602a5214e1fb513feb22a035b7e0f3b9245 # v1.5
+        with:
+          run-lint: "true"
+          lint-version: v2.12
 
       - name: Download modules
         run: go mod download
-
-      - name: Lint with golangci-lint
-        uses: golangci/golangci-lint-action@v9
-        with:
-          version: v2.12
-          install-mode: goinstall
-          args: --tests=false
 
   test:
     name: Test
