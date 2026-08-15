@@ -3,7 +3,7 @@ module github.com/flowerLoader/tool
 go 1.26.6
 
 require (
-	github.com/AlbinoGeek/logxi v0.0.0-20200425095309-d0ab8e34db2d
+	github.com/AlbinoGeek/logxi v0.0.0-20260814053308-6796234b10ca
 	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/andygrunwald/vdf v1.1.0
 	github.com/codeclysm/extract/v4 v4.0.0
