@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Go environment
-        uses: Rethunk-Tech/gh-actions/setup-go@ea87a602a5214e1fb513feb22a035b7e0f3b9245 # v1.5
+        uses: Rethunk-Tech/gh-actions/setup-go@e04e0afa3e00c59e33030fdbc7df29c15000357b # v1.7
 
       - name: Install dependencies
         run: go get -v -t -d ./...
