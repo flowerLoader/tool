@@ -16,7 +16,7 @@ func TestTranspileProject(t *testing.T) {
 		// make temp directory for testing sources
 		tmpSrc := filepath.Join(os.TempDir(), "_flowerLoader_test_")
 		So(os.MkdirAll(tmpSrc, 0777), ShouldBeNil)
-		defer os.RemoveAll(tmpSrc)
+		defer func() { _ = os.RemoveAll(tmpSrc) }()
 
 		Convey("should error on invalid sources", func() {
 			So(TranspileProject("/does/not/exist", ""), ShouldNotBeNil)
@@ -39,7 +39,7 @@ func TestTranspileProject(t *testing.T) {
 
 		cwd, _ := os.Getwd()
 		relTmp, _ := filepath.Rel(cwd, tmpSrc)
-		relTmpSrc := strings.Replace(relTmp, "\\", "/", -1)
+		relTmpSrc := strings.ReplaceAll(relTmp, "\\", "/")
 
 		dstFile := filepath.Join(tmpSrc, "test.js")
 		Convey("should transpile a single file", func() {
@@ -49,7 +49,7 @@ func TestTranspileProject(t *testing.T) {
 
 			_, err := os.Stat(dstFile)
 			So(err, ShouldBeNil)
-			defer os.Remove(dstFile)
+			defer func() { _ = os.Remove(dstFile) }()
 
 			contents, err := os.ReadFile(dstFile)
 			So(err, ShouldBeNil)
@@ -66,7 +66,7 @@ func TestTranspileProject(t *testing.T) {
 
 			_, err := os.Stat(dstFile)
 			So(err, ShouldBeNil)
-			defer os.Remove(dstFile)
+			defer func() { _ = os.Remove(dstFile) }()
 
 			contents, err := os.ReadFile(dstFile)
 			So(err, ShouldBeNil)
@@ -82,7 +82,7 @@ func TestTranspileProject(t *testing.T) {
 
 			_, err := os.Stat(dstFile)
 			So(err, ShouldBeNil)
-			defer os.Remove(dstFile)
+			defer func() { _ = os.Remove(dstFile) }()
 
 			contents, err := os.ReadFile(dstFile)
 			So(err, ShouldBeNil)
@@ -98,7 +98,7 @@ func TestTranspileProject(t *testing.T) {
 
 			_, err := os.Stat(dstFile)
 			So(err, ShouldBeNil)
-			defer os.Remove(dstFile)
+			defer func() { _ = os.Remove(dstFile) }()
 
 			contents, err := os.ReadFile(dstFile)
 			So(err, ShouldBeNil)

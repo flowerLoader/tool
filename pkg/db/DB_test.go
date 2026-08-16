@@ -16,7 +16,7 @@ func TestPluginRegistry(t *testing.T) {
 	Convey("Given a new database", t, func() {
 		db, err := NewDB(":memory:")
 		So(err, ShouldBeNil)
-		defer db.Close()
+		defer func() { _ = db.Close() }()
 
 		err = db.Migrate()
 		So(err, ShouldBeNil)
